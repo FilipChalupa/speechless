@@ -12,7 +12,11 @@ Určené hlavne pre telefón.
   (localStorage). Kliknutie na položku v histórii ju prehrá znova.
 - Hviezdička položku pripne: pripnuté sú vždy hore, nevypadnú z histórie po
   dosiahnutí limitu a neodstráni ich ani tlačidlo Vymazať nepripnuté.
-- Jazyk je zatiaľ natvrdo slovenčina – konštanta `LANGUAGE` v `main.js`.
+- Jazyk reči sa vyberá v sekcii Nastavenia, predvolený je podľa `navigator.languages`
+  (zoznam `LANGUAGES` v `main.js`). Voľba sa pamätá a každý záznam v histórii si
+  drží jazyk, v ktorom vznikol.
+- Jazyk rozhrania sleduje jazyk reči. Preložené sú `en`, `cs` a `sk`
+  (`TRANSLATIONS` v `main.js`), zvyšok spadne na angličtinu.
 - Dá sa pridať na plochu (`manifest.webmanifest`, `apple-touch-icon.png`,
   service worker) a spustí sa bez panelu prehliadača. Na iPhone cez Safari →
   Zdieľať → Pridať na plochu. Ikony sa generujú z `icon.svg`.

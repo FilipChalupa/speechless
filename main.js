@@ -10,6 +10,56 @@ const LANGUAGES = [
 	{ code: 'fr', label: 'Français' },
 	{ code: 'it', label: 'Italiano' },
 ]
+// The interface follows the spoken language where it is translated, and falls
+// back to English everywhere else.
+const TRANSLATIONS = {
+	en: {
+		placeholder: 'Type what I should say…',
+		inputLabel: 'Text to speak',
+		play: 'Play',
+		playing: 'Playing…',
+		error: 'Could not play the audio. Try again.',
+		history: 'History',
+		clear: 'Clear',
+		clearUnpinned: 'Clear unpinned',
+		empty: 'Nothing has been spoken yet.',
+		pin: 'Pin',
+		unpin: 'Unpin',
+		settings: 'Settings',
+		speechLanguage: 'Speech language',
+	},
+	cs: {
+		placeholder: 'Napiš, co mám říct…',
+		inputLabel: 'Text k přehrání',
+		play: 'Přehrát',
+		playing: 'Přehrávám…',
+		error: 'Zvuk se nepodařilo přehrát. Zkus to znovu.',
+		history: 'Historie',
+		clear: 'Vymazat',
+		clearUnpinned: 'Vymazat nepřipnuté',
+		empty: 'Zatím nic nebylo přehráno.',
+		pin: 'Připnout',
+		unpin: 'Odepnout',
+		settings: 'Nastavení',
+		speechLanguage: 'Jazyk řeči',
+	},
+	sk: {
+		placeholder: 'Napíš, čo mám povedať…',
+		inputLabel: 'Text na prehratie',
+		play: 'Prehrať',
+		playing: 'Prehrávam…',
+		error: 'Nepodarilo sa prehrať zvuk. Skús to znova.',
+		history: 'História',
+		clear: 'Vymazať',
+		clearUnpinned: 'Vymazať nepripnuté',
+		empty: 'Zatiaľ nič nebolo prehraté.',
+		pin: 'Pripnúť',
+		unpin: 'Odopnúť',
+		settings: 'Nastavenia',
+		speechLanguage: 'Jazyk reči',
+	},
+}
+const FALLBACK_UI_LANGUAGE = 'en'
 const MAX_CHUNK_LENGTH = 180
 const HISTORY_STORAGE_KEY = 'speechless:history'
 const LANGUAGE_STORAGE_KEY = 'speechless:language'
@@ -22,6 +72,10 @@ const historyList = document.querySelector('#history')
 const historyEmpty = document.querySelector('#history-empty')
 const clearHistoryButton = document.querySelector('#clear-history')
 const languageSelect = document.querySelector('#language')
+const submitButton = document.querySelector('#submit')
+const historyHeading = document.querySelector('#history-heading')
+const settingsHeading = document.querySelector('#settings-heading')
+const languageLabel = document.querySelector('#language-label')
 
 // A single reused element keeps playback unlocked on iOS after the first tap.
 const player = new Audio()
@@ -32,7 +86,28 @@ let language = loadLanguage()
 let history = loadHistory()
 
 renderLanguages()
+renderTexts()
 renderHistory()
+
+function uiLanguage() {
+	return TRANSLATIONS[language] ? language : FALLBACK_UI_LANGUAGE
+}
+
+function texts() {
+	return TRANSLATIONS[uiLanguage()]
+}
+
+function renderTexts() {
+	const strings = texts()
+	document.documentElement.lang = uiLanguage()
+	input.placeholder = strings.placeholder
+	input.setAttribute('aria-label', strings.inputLabel)
+	submitButton.textContent = strings.play
+	historyHeading.textContent = strings.history
+	historyEmpty.textContent = strings.empty
+	settingsHeading.textContent = strings.settings
+	languageLabel.textContent = strings.speechLanguage
+}
 
 // Without a stored choice, follow what the browser says the user reads.
 function preferredLanguage() {
@@ -142,7 +217,7 @@ function renderHistory() {
 			pin.className = 'history-pin'
 			pin.textContent = pinned ? '★' : '☆'
 			pin.setAttribute('aria-pressed', String(pinned))
-			pin.setAttribute('aria-label', pinned ? 'Odopnúť' : 'Pripnúť')
+			pin.setAttribute('aria-label', pinned ? texts().unpin : texts().pin)
 			pin.addEventListener('click', () => {
 				togglePin(text)
 			})
@@ -155,7 +230,7 @@ function renderHistory() {
 	const pinnedCount = history.filter((item) => item.pinned).length
 	historyEmpty.hidden = history.length > 0
 	clearHistoryButton.hidden = history.length === pinnedCount
-	clearHistoryButton.textContent = pinnedCount > 0 ? 'Vymazať nepripnuté' : 'Vymazať'
+	clearHistoryButton.textContent = pinnedCount > 0 ? texts().clearUnpinned : texts().clear
 }
 
 function addToHistory(text) {
@@ -266,7 +341,7 @@ async function speak(text, spokenLanguage = language) {
 	const chunks = splitIntoChunks(text)
 
 	player.pause()
-	setStatus('Prehrávam…')
+	setStatus(texts().playing)
 
 	try {
 		for (const [index, chunk] of chunks.entries()) {
@@ -280,7 +355,7 @@ async function speak(text, spokenLanguage = language) {
 		}
 	} catch {
 		if (token === playbackToken) {
-			setStatus('Nepodarilo sa prehrať zvuk. Skús to znova.', 'error')
+			setStatus(texts().error, 'error')
 		}
 	}
 }
@@ -316,7 +391,8 @@ languageSelect.addEventListener('change', () => {
 	} catch {
 		// The choice then lasts only for this visit.
 	}
-	// Badges depend on which language is current.
+	// Interface language follows the spoken one; badges depend on it too.
+	renderTexts()
 	renderHistory()
 	input.focus()
 })
