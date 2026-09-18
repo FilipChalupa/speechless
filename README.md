@@ -17,6 +17,11 @@ Určené hlavne pre telefón.
   drží jazyk, v ktorom vznikol.
 - Jazyk rozhrania sleduje jazyk reči. Preložené sú `en`, `cs` a `sk`
   (`TRANSLATIONS` v `main.js`), zvyšok spadne na angličtinu.
+- Keď je zariadenie offline alebo Google TTS zlyhá, appka prehovorí hlasom
+  zariadenia (`speechSynthesis`) a povie to v stavovom riadku. Offline sa na
+  systémový hlas prepne rovno, bez čakania na neúspešný request – inak by na
+  iOS vypršalo gesto, ktoré prehrávanie povoľuje. Ak pre daný jazyk hlas
+  neexistuje, radšej nepovie nič, než aby to prečítala cudzia výslovnosť.
 - Dá sa pridať na plochu (`manifest.webmanifest`, `apple-touch-icon.png`,
   service worker) a spustí sa bez panelu prehliadača. Na iPhone cez Safari →
   Zdieľať → Pridať na plochu. Ikony sa generujú z `icon.svg`.

@@ -18,7 +18,9 @@ const TRANSLATIONS = {
 		inputLabel: 'Text to speak',
 		play: 'Play',
 		playing: 'Playing…',
+		playingDevice: 'Playing with the device voice…',
 		error: 'Could not play the audio. Try again.',
+		noVoice: 'This device has no offline voice for this language.',
 		history: 'History',
 		clear: 'Clear',
 		clearUnpinned: 'Clear unpinned',
@@ -33,7 +35,9 @@ const TRANSLATIONS = {
 		inputLabel: 'Text k přehrání',
 		play: 'Přehrát',
 		playing: 'Přehrávám…',
+		playingDevice: 'Přehrávám hlasem zařízení…',
 		error: 'Zvuk se nepodařilo přehrát. Zkus to znovu.',
+		noVoice: 'Zařízení nemá pro tento jazyk offline hlas.',
 		history: 'Historie',
 		clear: 'Vymazat',
 		clearUnpinned: 'Vymazat nepřipnuté',
@@ -48,7 +52,9 @@ const TRANSLATIONS = {
 		inputLabel: 'Text na prehratie',
 		play: 'Prehrať',
 		playing: 'Prehrávam…',
+		playingDevice: 'Prehrávam hlasom zariadenia…',
 		error: 'Nepodarilo sa prehrať zvuk. Skús to znova.',
+		noVoice: 'Zariadenie nemá pre tento jazyk offline hlas.',
 		history: 'História',
 		clear: 'Vymazať',
 		clearUnpinned: 'Vymazať nepripnuté',
@@ -349,14 +355,83 @@ function playChunk(chunk, index, total, spokenLanguage) {
 	})
 }
 
+function stopPlayback() {
+	player.pause()
+	if ('speechSynthesis' in window) {
+		speechSynthesis.cancel()
+	}
+}
+
+// Voices are populated asynchronously and can still be empty on first call.
+function availableVoices() {
+	return new Promise((resolve) => {
+		const ready = speechSynthesis.getVoices()
+		if (ready.length > 0) {
+			resolve(ready)
+			return
+		}
+		const timer = setTimeout(() => resolve(speechSynthesis.getVoices()), 1000)
+		speechSynthesis.addEventListener(
+			'voiceschanged',
+			() => {
+				clearTimeout(timer)
+				resolve(speechSynthesis.getVoices())
+			},
+			{ once: true },
+		)
+	})
+}
+
+async function deviceSpeech(text, spokenLanguage) {
+	if (!('speechSynthesis' in window)) {
+		throw new Error('no-voice')
+	}
+	const voice = (await availableVoices()).find(
+		(candidate) => candidate.lang.toLowerCase().replace('_', '-').split('-')[0] === spokenLanguage,
+	)
+	// Speaking with the wrong voice would produce nonsense, so refuse instead.
+	if (!voice) {
+		throw new Error('no-voice')
+	}
+
+	await new Promise((resolve, reject) => {
+		const utterance = new SpeechSynthesisUtterance(text)
+		utterance.voice = voice
+		utterance.lang = voice.lang
+		utterance.addEventListener('end', () => resolve())
+		utterance.addEventListener('error', (event) => reject(new Error(event.error ?? 'speech-failed')))
+		speechSynthesis.speak(utterance)
+	})
+}
+
+async function speakWithDevice(text, spokenLanguage, token) {
+	setStatus('playingDevice')
+	try {
+		await deviceSpeech(text, spokenLanguage)
+		if (token === playbackToken) {
+			setStatus(null)
+		}
+	} catch (error) {
+		if (token === playbackToken) {
+			setStatus(error.message === 'no-voice' ? 'noVoice' : 'error', 'error')
+		}
+	}
+}
+
 async function speak(text, spokenLanguage = language) {
 	const token = ++playbackToken
-	const chunks = splitIntoChunks(text)
+	stopPlayback()
 
-	player.pause()
+	// Offline the request would only fail slowly, and on iOS the user gesture
+	// that allows speaking would be gone by then.
+	if (navigator.onLine === false) {
+		await speakWithDevice(text, spokenLanguage, token)
+		return
+	}
+
 	setStatus('playing')
-
 	try {
+		const chunks = splitIntoChunks(text)
 		for (const [index, chunk] of chunks.entries()) {
 			if (token !== playbackToken) {
 				return
@@ -367,9 +442,11 @@ async function speak(text, spokenLanguage = language) {
 			setStatus(null)
 		}
 	} catch {
-		if (token === playbackToken) {
-			setStatus('error', 'error')
+		if (token !== playbackToken) {
+			return
 		}
+		// Google TTS is unreachable or refused; the device voice still works.
+		await speakWithDevice(text, spokenLanguage, token)
 	}
 }
 
