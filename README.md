@@ -13,6 +13,9 @@ Určené hlavne pre telefón.
 - Hviezdička položku pripne: pripnuté sú vždy hore, nevypadnú z histórie po
   dosiahnutí limitu a neodstráni ich ani tlačidlo Vymazať nepripnuté.
 - Jazyk je zatiaľ natvrdo slovenčina – konštanta `LANGUAGE` v `main.js`.
+- Dá sa pridať na plochu (`manifest.webmanifest`, `apple-touch-icon.png`,
+  service worker) a spustí sa bez panelu prehliadača. Na iPhone cez Safari →
+  Zdieľať → Pridať na plochu. Ikony sa generujú z `icon.svg`.
 
 ## Vývoj
 

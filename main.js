@@ -247,3 +247,11 @@ clearHistoryButton.addEventListener('click', () => {
 	saveHistory()
 	renderHistory()
 })
+
+// Makes the app installable on the home screen; failing registration (file://,
+// private mode) must not break speaking.
+if ('serviceWorker' in navigator) {
+	window.addEventListener('load', () => {
+		navigator.serviceWorker.register('sw.js').catch(() => {})
+	})
+}
