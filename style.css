@@ -160,22 +160,47 @@ body {
 }
 
 .history-item {
-	display: block;
-	width: 100%;
-	min-height: 3rem;
-	padding: 0.75rem 1rem;
+	display: flex;
+	align-items: stretch;
+	gap: 0.25rem;
 	border: 1px solid var(--border);
 	border-radius: 0.875rem;
 	background: var(--surface);
+	overflow: hidden;
+}
+
+.history-play,
+.history-pin {
+	min-height: 3rem;
+	padding: 0.75rem 1rem;
+	border: 0;
+	background: none;
 	color: inherit;
 	font: inherit;
-	text-align: left;
-	white-space: pre-wrap;
-	overflow-wrap: anywhere;
 	cursor: pointer;
 	touch-action: manipulation;
 }
 
-.history-item:active {
+.history-play {
+	flex: 1;
+	text-align: left;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.history-pin {
+	flex: none;
+	padding-inline: 0.875rem;
+	color: var(--text-muted);
+	font-size: 1.375rem;
+	line-height: 1;
+}
+
+.history-pin[aria-pressed="true"] {
+	color: #eab308;
+}
+
+.history-play:active,
+.history-pin:active {
 	background: var(--surface-hover);
 }

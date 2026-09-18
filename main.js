@@ -22,10 +22,30 @@ renderHistory()
 function loadHistory() {
 	try {
 		const stored = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY))
-		return Array.isArray(stored) ? stored.filter((item) => typeof item === 'string') : []
+		if (!Array.isArray(stored)) {
+			return []
+		}
+		return sortPinnedFirst(
+			stored
+				.map((item) => {
+					// History used to be a plain array of strings.
+					if (typeof item === 'string') {
+						return { text: item, pinned: false }
+					}
+					if (item && typeof item.text === 'string') {
+						return { text: item.text, pinned: item.pinned === true }
+					}
+					return null
+				})
+				.filter(Boolean),
+		)
 	} catch {
 		return []
 	}
+}
+
+function sortPinnedFirst(items) {
+	return [...items.filter((item) => item.pinned), ...items.filter((item) => !item.pinned)]
 }
 
 function saveHistory() {
@@ -38,27 +58,62 @@ function saveHistory() {
 
 function renderHistory() {
 	historyList.replaceChildren(
-		...history.map((text) => {
+		...history.map(({ text, pinned }) => {
 			const item = document.createElement('li')
-			const button = document.createElement('button')
-			button.type = 'button'
-			button.className = 'history-item'
-			button.textContent = text
-			button.addEventListener('click', () => {
+			item.className = 'history-item'
+
+			const play = document.createElement('button')
+			play.type = 'button'
+			play.className = 'history-play'
+			play.textContent = text
+			play.addEventListener('click', () => {
 				speak(text)
 			})
-			item.append(button)
+
+			const pin = document.createElement('button')
+			pin.type = 'button'
+			pin.className = 'history-pin'
+			pin.textContent = pinned ? '★' : '☆'
+			pin.setAttribute('aria-pressed', String(pinned))
+			pin.setAttribute('aria-label', pinned ? 'Odopnúť' : 'Pripnúť')
+			pin.addEventListener('click', () => {
+				togglePin(text)
+			})
+
+			item.append(play, pin)
 			return item
 		}),
 	)
+
+	const pinnedCount = history.filter((item) => item.pinned).length
 	historyEmpty.hidden = history.length > 0
-	clearHistoryButton.hidden = history.length === 0
+	clearHistoryButton.hidden = history.length === pinnedCount
+	clearHistoryButton.textContent = pinnedCount > 0 ? 'Vymazať nepripnuté' : 'Vymazať'
 }
 
 function addToHistory(text) {
-	history = [text, ...history.filter((item) => item !== text)].slice(0, HISTORY_LIMIT)
+	const wasPinned = history.some((item) => item.text === text && item.pinned)
+	const others = history.filter((item) => item.text !== text)
+	// The new entry goes to the top of its own group, pinned or not.
+	history = trimHistory(sortPinnedFirst([{ text, pinned: wasPinned }, ...others]))
 	saveHistory()
 	renderHistory()
+}
+
+function togglePin(text) {
+	history = sortPinnedFirst(
+		history.map((item) => (item.text === text ? { ...item, pinned: !item.pinned } : item)),
+	)
+	saveHistory()
+	renderHistory()
+}
+
+// Pinned entries are kept by hand, so only unpinned ones age out.
+function trimHistory(items) {
+	return [
+		...items.filter((item) => item.pinned),
+		...items.filter((item) => !item.pinned).slice(0, HISTORY_LIMIT),
+	]
 }
 
 function setStatus(message, tone) {
@@ -188,7 +243,7 @@ input.addEventListener('keydown', (event) => {
 })
 
 clearHistoryButton.addEventListener('click', () => {
-	history = []
+	history = history.filter((item) => item.pinned)
 	saveHistory()
 	renderHistory()
 })

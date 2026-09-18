@@ -10,6 +10,8 @@ Určené hlavne pre telefón.
   Dlhší text sa rozdelí na časti do 180 znakov a prehrá sa postupne.
 - Enter aj tlačidlo Prehrať vyprázdnia pole a text uložia do histórie
   (localStorage). Kliknutie na položku v histórii ju prehrá znova.
+- Hviezdička položku pripne: pripnuté sú vždy hore, nevypadnú z histórie po
+  dosiahnutí limitu a neodstráni ich ani tlačidlo Vymazať nepripnuté.
 - Jazyk je zatiaľ natvrdo slovenčina – konštanta `LANGUAGE` v `main.js`.
 
 ## Vývoj
