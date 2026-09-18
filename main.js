@@ -82,6 +82,10 @@ const player = new Audio()
 player.preload = 'auto'
 
 let playbackToken = 0
+// Declared here, not next to setStatus: renderTexts() reads them during the
+// init calls below, which would hit the temporal dead zone.
+let statusKey = null
+let statusTone = null
 let language = loadLanguage()
 let history = loadHistory()
 
@@ -107,6 +111,7 @@ function renderTexts() {
 	historyEmpty.textContent = strings.empty
 	settingsHeading.textContent = strings.settings
 	languageLabel.textContent = strings.speechLanguage
+	renderStatus()
 }
 
 // Without a stored choice, follow what the browser says the user reads.
@@ -258,10 +263,18 @@ function trimHistory(items) {
 	]
 }
 
-function setStatus(message, tone) {
-	statusElement.textContent = message
-	if (tone) {
-		statusElement.dataset.tone = tone
+// The status is kept as a key, not as finished text: an error stays on screen
+// until the next playback, so it has to follow a language change.
+function setStatus(key, tone) {
+	statusKey = key
+	statusTone = tone ?? null
+	renderStatus()
+}
+
+function renderStatus() {
+	statusElement.textContent = statusKey ? texts()[statusKey] : ''
+	if (statusTone) {
+		statusElement.dataset.tone = statusTone
 	} else {
 		delete statusElement.dataset.tone
 	}
@@ -341,7 +354,7 @@ async function speak(text, spokenLanguage = language) {
 	const chunks = splitIntoChunks(text)
 
 	player.pause()
-	setStatus(texts().playing)
+	setStatus('playing')
 
 	try {
 		for (const [index, chunk] of chunks.entries()) {
@@ -351,11 +364,11 @@ async function speak(text, spokenLanguage = language) {
 			await playChunk(chunk, index, chunks.length, spokenLanguage)
 		}
 		if (token === playbackToken) {
-			setStatus('')
+			setStatus(null)
 		}
 	} catch {
 		if (token === playbackToken) {
-			setStatus(texts().error, 'error')
+			setStatus('error', 'error')
 		}
 	}
 }
