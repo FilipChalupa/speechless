@@ -29,6 +29,8 @@ const TRANSLATIONS = {
 		unpin: 'Unpin',
 		settings: 'Settings',
 		speechLanguage: 'Speech language',
+		show: 'Show',
+		close: 'Close',
 	},
 	cs: {
 		placeholder: 'Napiš, co mám říct…',
@@ -46,6 +48,8 @@ const TRANSLATIONS = {
 		unpin: 'Odepnout',
 		settings: 'Nastavení',
 		speechLanguage: 'Jazyk řeči',
+		show: 'Ukázat',
+		close: 'Zavřít',
 	},
 	sk: {
 		placeholder: 'Napíš, čo mám povedať…',
@@ -63,6 +67,8 @@ const TRANSLATIONS = {
 		unpin: 'Odopnúť',
 		settings: 'Nastavenia',
 		speechLanguage: 'Jazyk reči',
+		show: 'Ukázať',
+		close: 'Zavrieť',
 	},
 }
 const FALLBACK_UI_LANGUAGE = 'en'
@@ -82,6 +88,16 @@ const submitButton = document.querySelector('#submit')
 const historyHeading = document.querySelector('#history-heading')
 const settingsHeading = document.querySelector('#settings-heading')
 const languageLabel = document.querySelector('#language-label')
+const showButton = document.querySelector('#show')
+const overlay = document.querySelector('#overlay')
+const overlayText = document.querySelector('#overlay-text')
+const overlaySpeakButton = document.querySelector('#overlay-speak')
+const overlayCloseButton = document.querySelector('#overlay-close')
+
+const EYE_ICON =
+	'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+	'<path fill="currentColor" d="M12 5C7 5 3 9.5 3 12s4 7 9 7 9-4.5 9-7-4-7-9-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/>' +
+	'</svg>'
 
 // A single reused element keeps playback unlocked on iOS after the first tap.
 const player = new Audio()
@@ -92,6 +108,9 @@ let playbackToken = 0
 // init calls below, which would hit the temporal dead zone.
 let statusKey = null
 let statusTone = null
+let shownText = ''
+let shownLanguage = null
+let wakeLock = null
 let language = loadLanguage()
 let history = loadHistory()
 
@@ -117,6 +136,9 @@ function renderTexts() {
 	historyEmpty.textContent = strings.empty
 	settingsHeading.textContent = strings.settings
 	languageLabel.textContent = strings.speechLanguage
+	showButton.textContent = strings.show
+	overlaySpeakButton.textContent = strings.play
+	overlayCloseButton.textContent = strings.close
 	renderStatus()
 }
 
@@ -233,7 +255,16 @@ function renderHistory() {
 				togglePin(text)
 			})
 
-			item.append(play, pin)
+			const show = document.createElement('button')
+			show.type = 'button'
+			show.className = 'history-show'
+			show.innerHTML = EYE_ICON
+			show.setAttribute('aria-label', `${texts().show}: ${text}`)
+			show.addEventListener('click', () => {
+				openOverlay(text, lang ?? language)
+			})
+
+			item.append(play, show, pin)
 			return item
 		}),
 	)
@@ -471,6 +502,73 @@ input.addEventListener('keydown', (event) => {
 	if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
 		event.preventDefault()
 		submit()
+	}
+})
+
+// Reading distance decides the size: a short phrase is the one held up across
+// a room, a long one has to stay on screen at all.
+function sizeTier(text) {
+	const { length } = text.trim()
+	if (length <= 16) {
+		return 'xl'
+	}
+	if (length <= 48) {
+		return 'l'
+	}
+	if (length <= 120) {
+		return 'm'
+	}
+	return 's'
+}
+
+async function requestWakeLock() {
+	try {
+		wakeLock = (await navigator.wakeLock?.request('screen')) ?? null
+	} catch {
+		// Not granted or unsupported; the screen may dim but showing still works.
+	}
+}
+
+function releaseWakeLock() {
+	wakeLock?.release().catch(() => {})
+	wakeLock = null
+}
+
+function openOverlay(text, spokenLanguage) {
+	shownText = text
+	shownLanguage = spokenLanguage
+	overlayText.textContent = text
+	overlay.dataset.size = sizeTier(text)
+	overlay.hidden = false
+	overlayCloseButton.focus()
+	requestWakeLock()
+}
+
+function closeOverlay() {
+	overlay.hidden = true
+	releaseWakeLock()
+	input.focus()
+}
+
+showButton.addEventListener('click', () => {
+	const text = input.value.trim()
+	if (!text) {
+		return
+	}
+	input.value = ''
+	addToHistory(text)
+	openOverlay(text, language)
+})
+
+overlaySpeakButton.addEventListener('click', () => {
+	speak(shownText, shownLanguage ?? language)
+})
+
+overlayCloseButton.addEventListener('click', closeOverlay)
+
+document.addEventListener('keydown', (event) => {
+	if (event.key === 'Escape' && !overlay.hidden) {
+		closeOverlay()
 	}
 })
 

@@ -257,3 +257,132 @@ body {
 	font: inherit;
 	touch-action: manipulation;
 }
+
+.composer-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.composer-submit {
+	flex: 2;
+}
+
+.composer-show {
+	flex: 1;
+	min-height: 3.25rem;
+	border: 1px solid var(--border);
+	border-radius: 0.875rem;
+	background: var(--surface);
+	color: inherit;
+	font: inherit;
+	font-size: 1.125rem;
+	font-weight: 600;
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.composer-show:active {
+	background: var(--surface-hover);
+}
+
+.history-show {
+	flex: none;
+	min-height: 3rem;
+	padding: 0.75rem 0.75rem;
+	border: 0;
+	background: none;
+	color: var(--text-muted);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.history-show svg {
+	display: block;
+	width: 1.375rem;
+	height: 1.375rem;
+}
+
+.history-show:active {
+	background: var(--surface-hover);
+}
+
+/* Must come with the display rule below: an author `display` beats the
+   browser's `[hidden] { display: none }`, which left the overlay covering the
+   page and swallowing every tap. */
+.overlay[hidden] {
+	display: none;
+}
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+	background: var(--surface);
+}
+
+.overlay-text {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	overflow-y: auto;
+	font-weight: 700;
+	line-height: 1.15;
+	text-align: center;
+	overflow-wrap: anywhere;
+	hyphens: auto;
+}
+
+/* Short phrases are the ones read across a room, so they get the most size. */
+.overlay[data-size='xl'] .overlay-text {
+	font-size: min(22vw, 20vh);
+}
+
+.overlay[data-size='l'] .overlay-text {
+	font-size: min(13vw, 12vh);
+}
+
+.overlay[data-size='m'] .overlay-text {
+	font-size: min(8vw, 8vh);
+}
+
+.overlay[data-size='s'] .overlay-text {
+	font-size: min(5.5vw, 5vh);
+}
+
+.overlay-actions {
+	display: flex;
+	flex: none;
+	gap: 0.5rem;
+}
+
+.overlay-speak,
+.overlay-close {
+	flex: 1;
+	min-height: 3.25rem;
+	border: 1px solid var(--border);
+	border-radius: 0.875rem;
+	background: var(--background);
+	color: inherit;
+	font: inherit;
+	font-size: 1.125rem;
+	font-weight: 600;
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.overlay-speak {
+	border-color: transparent;
+	background: var(--accent);
+	color: var(--accent-text);
+}
+
+.overlay-speak:active,
+.overlay-close:active {
+	opacity: 0.8;
+}

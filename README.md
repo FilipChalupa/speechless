@@ -17,6 +17,11 @@ Určené hlavne pre telefón.
   drží jazyk, v ktorom vznikol.
 - Jazyk rozhrania sleduje jazyk reči. Preložené sú `en`, `cs` a `sk`
   (`TRANSLATIONS` v `main.js`), zvyšok spadne na angličtinu.
+- Tlačidlo Ukázať (a ikona oka pri každom zázname) zobrazí text na celú
+  obrazovku – pre hluk, pre nedoslýchavých a všade, kde zvuk nestačí.
+  Veľkosť písma sa volí podľa dĺžky textu a kým je text zobrazený, drží sa
+  obrazovka rozsvietená cez Wake Lock. Ukázanie zámerne nič nevysloví;
+  v prekrytí je na to tlačidlo.
 - Keď je zariadenie offline alebo Google TTS zlyhá, appka prehovorí hlasom
   zariadenia (`speechSynthesis`) a povie to v stavovom riadku. Offline sa na
   systémový hlas prepne rovno, bez čakania na neúspešný request – inak by na
