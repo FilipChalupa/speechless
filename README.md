@@ -27,5 +27,14 @@ npx serve .
 
 ## Nasadenie
 
-GitHub Pages servíruje vetvu `main` z koreňa repozitára, takže nasadenie je
-obyčajný push.
+Push do `main` spustí workflow, ktorý zavolá `node build.mjs` a výsledný
+priečinok `dist/` nasadí na GitHub Pages. Nič sa nekompiluje, build iba
+premenuje `style.css` a `main.js` na `style.<hash>.css` a `main.<hash>.js`
+a prepíše odkazy v `index.html`.
+
+Prečo: Pages posiela assety s `cache-control: max-age=14400`, takže CDN aj
+telefón by inak hodiny držali starú verziu. `index.html` má krátku životnosť,
+takže po nasadení hneď ukazuje na nové názvy súborov.
+
+Lokálne sa build nepotrebuje – zdrojové súbory fungujú samé. Ak overuješ
+nasadenú verziu cez `curl`, použi `?cb=$(date +%s)`.

@@ -1,6 +1,18 @@
-const LANGUAGE = 'sk'
+const LANGUAGES = [
+	{ code: 'sk', label: 'Slovenčina' },
+	{ code: 'cs', label: 'Čeština' },
+	{ code: 'en', label: 'English' },
+	{ code: 'de', label: 'Deutsch' },
+	{ code: 'pl', label: 'Polski' },
+	{ code: 'hu', label: 'Magyar' },
+	{ code: 'uk', label: 'Українська' },
+	{ code: 'es', label: 'Español' },
+	{ code: 'fr', label: 'Français' },
+	{ code: 'it', label: 'Italiano' },
+]
 const MAX_CHUNK_LENGTH = 180
 const HISTORY_STORAGE_KEY = 'speechless:history'
+const LANGUAGE_STORAGE_KEY = 'speechless:language'
 const HISTORY_LIMIT = 50
 
 const form = document.querySelector('#form')
@@ -9,15 +21,54 @@ const statusElement = document.querySelector('#status')
 const historyList = document.querySelector('#history')
 const historyEmpty = document.querySelector('#history-empty')
 const clearHistoryButton = document.querySelector('#clear-history')
+const languageSelect = document.querySelector('#language')
 
 // A single reused element keeps playback unlocked on iOS after the first tap.
 const player = new Audio()
 player.preload = 'auto'
 
 let playbackToken = 0
+let language = loadLanguage()
 let history = loadHistory()
 
+renderLanguages()
 renderHistory()
+
+// Without a stored choice, follow what the browser says the user reads.
+function preferredLanguage() {
+	const preferences = navigator.languages?.length ? navigator.languages : [navigator.language]
+	for (const preference of preferences) {
+		const base = String(preference ?? '').toLowerCase().split('-')[0]
+		if (LANGUAGES.some((item) => item.code === base)) {
+			return base
+		}
+	}
+	return LANGUAGES[0].code
+}
+
+function loadLanguage() {
+	try {
+		const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY)
+		if (stored && LANGUAGES.some((item) => item.code === stored)) {
+			return stored
+		}
+	} catch {
+		// Fall through to the browser preference.
+	}
+	return preferredLanguage()
+}
+
+function renderLanguages() {
+	languageSelect.replaceChildren(
+		...LANGUAGES.map(({ code, label }) => {
+			const option = document.createElement('option')
+			option.value = code
+			option.textContent = label
+			return option
+		}),
+	)
+	languageSelect.value = language
+}
 
 function loadHistory() {
 	try {
@@ -30,10 +81,14 @@ function loadHistory() {
 				.map((item) => {
 					// History used to be a plain array of strings.
 					if (typeof item === 'string') {
-						return { text: item, pinned: false }
+						return { text: item, pinned: false, lang: null }
 					}
 					if (item && typeof item.text === 'string') {
-						return { text: item.text, pinned: item.pinned === true }
+						return {
+							text: item.text,
+							pinned: item.pinned === true,
+							lang: typeof item.lang === 'string' ? item.lang : null,
+						}
 					}
 					return null
 				})
@@ -58,16 +113,28 @@ function saveHistory() {
 
 function renderHistory() {
 	historyList.replaceChildren(
-		...history.map(({ text, pinned }) => {
+		...history.map(({ text, pinned, lang }) => {
 			const item = document.createElement('li')
 			item.className = 'history-item'
 
 			const play = document.createElement('button')
 			play.type = 'button'
 			play.className = 'history-play'
-			play.textContent = text
+			// An entry recorded in another language keeps speaking that one, so
+			// say which it is.
+			if (lang && lang !== language) {
+				const badge = document.createElement('span')
+				badge.className = 'history-lang'
+				badge.textContent = lang
+				// Visual only; the label below says it without running the code
+				// into the phrase.
+				badge.setAttribute('aria-hidden', 'true')
+				play.append(badge)
+				play.setAttribute('aria-label', `${text} (${lang})`)
+			}
+			play.append(text)
 			play.addEventListener('click', () => {
-				speak(text)
+				speak(text, lang ?? language)
 			})
 
 			const pin = document.createElement('button')
@@ -95,7 +162,7 @@ function addToHistory(text) {
 	const wasPinned = history.some((item) => item.text === text && item.pinned)
 	const others = history.filter((item) => item.text !== text)
 	// The new entry goes to the top of its own group, pinned or not.
-	history = trimHistory(sortPinnedFirst([{ text, pinned: wasPinned }, ...others]))
+	history = trimHistory(sortPinnedFirst([{ text, pinned: wasPinned, lang: language }, ...others]))
 	saveHistory()
 	renderHistory()
 }
@@ -156,11 +223,11 @@ function splitIntoChunks(text) {
 	return chunks
 }
 
-function chunkUrl(chunk, index, total) {
+function chunkUrl(chunk, index, total, spokenLanguage) {
 	const parameters = new URLSearchParams({
 		ie: 'UTF-8',
 		client: 'tw-ob',
-		tl: LANGUAGE,
+		tl: spokenLanguage,
 		total: String(total),
 		idx: String(index),
 		textlen: String(chunk.length),
@@ -169,7 +236,7 @@ function chunkUrl(chunk, index, total) {
 	return `https://translate.google.com/translate_tts?${parameters}`
 }
 
-function playChunk(chunk, index, total) {
+function playChunk(chunk, index, total, spokenLanguage) {
 	return new Promise((resolve, reject) => {
 		const cleanUp = () => {
 			player.removeEventListener('ended', handleEnded)
@@ -186,7 +253,7 @@ function playChunk(chunk, index, total) {
 
 		player.addEventListener('ended', handleEnded)
 		player.addEventListener('error', handleError)
-		player.src = chunkUrl(chunk, index, total)
+		player.src = chunkUrl(chunk, index, total, spokenLanguage)
 		player.play().catch((error) => {
 			cleanUp()
 			reject(error)
@@ -194,7 +261,7 @@ function playChunk(chunk, index, total) {
 	})
 }
 
-async function speak(text) {
+async function speak(text, spokenLanguage = language) {
 	const token = ++playbackToken
 	const chunks = splitIntoChunks(text)
 
@@ -206,7 +273,7 @@ async function speak(text) {
 			if (token !== playbackToken) {
 				return
 			}
-			await playChunk(chunk, index, chunks.length)
+			await playChunk(chunk, index, chunks.length, spokenLanguage)
 		}
 		if (token === playbackToken) {
 			setStatus('')
@@ -240,6 +307,18 @@ input.addEventListener('keydown', (event) => {
 		event.preventDefault()
 		submit()
 	}
+})
+
+languageSelect.addEventListener('change', () => {
+	language = languageSelect.value
+	try {
+		localStorage.setItem(LANGUAGE_STORAGE_KEY, language)
+	} catch {
+		// The choice then lasts only for this visit.
+	}
+	// Badges depend on which language is current.
+	renderHistory()
+	input.focus()
 })
 
 clearHistoryButton.addEventListener('click', () => {

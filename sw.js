@@ -1,5 +1,8 @@
-const CACHE_NAME = 'speechless-shell-v1'
-const SHELL = ['./', 'index.html', 'style.css', 'main.js', 'manifest.webmanifest', 'icon.svg']
+// build.mjs stamps the build id, so every deploy starts with a clean cache.
+const CACHE_NAME = 'speechless-shell-__BUILD_ID__'
+// Only the entry document is precached; versioned assets (main.js?v=…) are
+// picked up by the fetch handler, so the list never goes out of sync.
+const SHELL = ['./', 'index.html']
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(
