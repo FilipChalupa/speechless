@@ -443,7 +443,7 @@ function playChunk(chunk, index, total, spokenLanguage) {
 		}
 		const handleError = () => {
 			cleanUp()
-			reject(new Error('Zvuk sa nepodarilo načítať.'))
+			reject(new Error('audio-failed'))
 		}
 
 		// Pausing fires no event, so the pending chunk has to be settled by hand.

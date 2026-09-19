@@ -1,8 +1,8 @@
 {
 	"name": "Speechless",
 	"short_name": "Speechless",
-	"description": "Napíš text a zariadenie ho povie nahlas.",
-	"lang": "sk",
+	"description": "Type a message and the device says it out loud.",
+	"lang": "en",
 	"dir": "ltr",
 	"start_url": "./",
 	"scope": "./",
