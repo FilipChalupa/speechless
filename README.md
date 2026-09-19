@@ -17,6 +17,10 @@ Určené hlavne pre telefón.
   drží jazyk, v ktorom vznikol.
 - Jazyk rozhrania sleduje jazyk reči. Preložené sú `en`, `cs` a `sk`
   (`TRANSLATIONS` v `main.js`), zvyšok spadne na angličtinu.
+- Pri úplne prvom spustení sa história predvyplní pripnutými frázami
+  (`PRESETS` v `main.js`) v jazyku zariadenia; pre jazyk bez predlohy sa použije
+  anglické znenie a uloží sa s `lang: 'en'`. Predvyplní sa len vtedy, keď kľúč
+  v `localStorage` vôbec neexistuje – vymazanú históriu to nevráti.
 - Tlačidlo Ukázať (a ikona oka pri každom zázname) zobrazí text na celú
   obrazovku – pre hluk, pre nedoslýchavých a všade, kde zvuk nestačí.
   Veľkosť písma sa volí podľa dĺžky textu a kým je text zobrazený, drží sa

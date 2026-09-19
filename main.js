@@ -72,6 +72,28 @@ const TRANSLATIONS = {
 	},
 }
 const FALLBACK_UI_LANGUAGE = 'en'
+// Seeded on the very first run: with an empty history the first real situation
+// is the worst moment to be typing from scratch.
+const PRESETS = {
+	en: [
+		'I cannot speak right now, so I am writing.',
+		'Please wait a moment, I am writing.',
+		'Could I have a glass of water, please?',
+		'Thank you.',
+	],
+	cs: [
+		'Teď nemůžu mluvit, tak píšu.',
+		'Počkejte chvíli, píšu.',
+		'Prosím vás o sklenici vody.',
+		'Děkuji.',
+	],
+	sk: [
+		'Teraz nemôžem hovoriť, tak píšem.',
+		'Počkajte chvíľu, píšem.',
+		'Poprosím pohár vody.',
+		'Ďakujem.',
+	],
+}
 const MAX_CHUNK_LENGTH = 180
 const HISTORY_STORAGE_KEY = 'speechless:history'
 const LANGUAGE_STORAGE_KEY = 'speechless:language'
@@ -178,9 +200,29 @@ function renderLanguages() {
 	languageSelect.value = language
 }
 
+// Phrases keep the language they are written in, so a German speaker gets the
+// English wording read by an English voice instead of German nonsense.
+function seededHistory() {
+	const presetLanguage = PRESETS[language] ? language : FALLBACK_UI_LANGUAGE
+	return PRESETS[presetLanguage].map((text) => ({ text, pinned: true, lang: presetLanguage }))
+}
+
 function loadHistory() {
+	let raw = null
 	try {
-		const stored = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY))
+		raw = localStorage.getItem(HISTORY_STORAGE_KEY)
+	} catch {
+		// Storage unavailable; the presets are still better than nothing.
+	}
+
+	// Only a missing key means a first run. An empty array means the user
+	// cleared the history, and seeding it again would undo that.
+	if (raw === null) {
+		return seededHistory()
+	}
+
+	try {
+		const stored = JSON.parse(raw)
 		if (!Array.isArray(stored)) {
 			return []
 		}
