@@ -17,6 +17,7 @@ const TRANSLATIONS = {
 		placeholder: 'Type what I should say…',
 		inputLabel: 'Text to speak',
 		play: 'Play',
+		stop: 'Stop',
 		playing: 'Playing…',
 		playingDevice: 'Playing with the device voice…',
 		error: 'Could not play the audio. Try again.',
@@ -36,6 +37,7 @@ const TRANSLATIONS = {
 		placeholder: 'Napiš, co mám říct…',
 		inputLabel: 'Text k přehrání',
 		play: 'Přehrát',
+		stop: 'Zastavit',
 		playing: 'Přehrávám…',
 		playingDevice: 'Přehrávám hlasem zařízení…',
 		error: 'Zvuk se nepodařilo přehrát. Zkus to znovu.',
@@ -55,6 +57,7 @@ const TRANSLATIONS = {
 		placeholder: 'Napíš, čo mám povedať…',
 		inputLabel: 'Text na prehratie',
 		play: 'Prehrať',
+		stop: 'Zastaviť',
 		playing: 'Prehrávam…',
 		playingDevice: 'Prehrávam hlasom zariadenia…',
 		error: 'Nepodarilo sa prehrať zvuk. Skús to znova.',
@@ -133,6 +136,8 @@ let statusTone = null
 let shownText = ''
 let shownLanguage = null
 let wakeLock = null
+let playing = false
+let abortCurrentChunk = null
 let language = loadLanguage()
 let history = loadHistory()
 
@@ -159,8 +164,8 @@ function renderTexts() {
 	settingsHeading.textContent = strings.settings
 	languageLabel.textContent = strings.speechLanguage
 	showButton.textContent = strings.show
-	overlaySpeakButton.textContent = strings.play
 	overlayCloseButton.textContent = strings.close
+	renderActionButtons()
 	renderStatus()
 }
 
@@ -344,6 +349,28 @@ function trimHistory(items) {
 
 // The status is kept as a key, not as finished text: an error stays on screen
 // until the next playback, so it has to follow a language change.
+// The button says Stop only while it would actually stop: once something is
+// typed, the same press speaks that instead.
+function renderActionButtons() {
+	const strings = texts()
+	submitButton.textContent = playing && input.value.trim() === '' ? strings.stop : strings.play
+	overlaySpeakButton.textContent = playing ? strings.stop : strings.play
+}
+
+function setPlaying(value) {
+	playing = value
+	renderActionButtons()
+}
+
+function cancelPlayback() {
+	// Bumping the token first makes the aborted chunk read as cancelled rather
+	// than as a failure, which would hand over to the device voice.
+	playbackToken += 1
+	stopPlayback()
+	setPlaying(false)
+	setStatus(null)
+}
+
 function setStatus(key, tone) {
 	statusKey = key
 	statusTone = tone ?? null
@@ -408,6 +435,7 @@ function playChunk(chunk, index, total, spokenLanguage) {
 		const cleanUp = () => {
 			player.removeEventListener('ended', handleEnded)
 			player.removeEventListener('error', handleError)
+			abortCurrentChunk = null
 		}
 		const handleEnded = () => {
 			cleanUp()
@@ -418,6 +446,11 @@ function playChunk(chunk, index, total, spokenLanguage) {
 			reject(new Error('Zvuk sa nepodarilo načítať.'))
 		}
 
+		// Pausing fires no event, so the pending chunk has to be settled by hand.
+		abortCurrentChunk = () => {
+			cleanUp()
+			reject(new Error('cancelled'))
+		}
 		player.addEventListener('ended', handleEnded)
 		player.addEventListener('error', handleError)
 		player.src = chunkUrl(chunk, index, total, spokenLanguage)
@@ -429,6 +462,7 @@ function playChunk(chunk, index, total, spokenLanguage) {
 }
 
 function stopPlayback() {
+	abortCurrentChunk?.()
 	player.pause()
 	if ('speechSynthesis' in window) {
 		speechSynthesis.cancel()
@@ -483,10 +517,12 @@ async function speakWithDevice(text, spokenLanguage, token) {
 		await deviceSpeech(text, spokenLanguage)
 		if (token === playbackToken) {
 			setStatus(null)
+			setPlaying(false)
 		}
 	} catch (error) {
 		if (token === playbackToken) {
 			setStatus(error.message === 'no-voice' ? 'noVoice' : 'error', 'error')
+			setPlaying(false)
 		}
 	}
 }
@@ -494,6 +530,7 @@ async function speakWithDevice(text, spokenLanguage, token) {
 async function speak(text, spokenLanguage = language) {
 	const token = ++playbackToken
 	stopPlayback()
+	setPlaying(true)
 
 	// Offline the request would only fail slowly, and on iOS the user gesture
 	// that allows speaking would be gone by then.
@@ -513,6 +550,7 @@ async function speak(text, spokenLanguage = language) {
 		}
 		if (token === playbackToken) {
 			setStatus(null)
+			setPlaying(false)
 		}
 	} catch {
 		if (token !== playbackToken) {
@@ -526,6 +564,10 @@ async function speak(text, spokenLanguage = language) {
 function submit() {
 	const text = input.value.trim()
 	if (!text) {
+		// Nothing to say: the same button is the way to stop what is playing.
+		if (playing) {
+			cancelPlayback()
+		}
 		return
 	}
 	input.value = ''
@@ -603,8 +645,14 @@ showButton.addEventListener('click', () => {
 })
 
 overlaySpeakButton.addEventListener('click', () => {
+	if (playing) {
+		cancelPlayback()
+		return
+	}
 	speak(shownText, shownLanguage ?? language)
 })
+
+input.addEventListener('input', renderActionButtons)
 
 overlayCloseButton.addEventListener('click', closeOverlay)
 

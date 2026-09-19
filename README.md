@@ -21,6 +21,9 @@ Určené hlavne pre telefón.
   (`PRESETS` v `main.js`) v jazyku zariadenia; pre jazyk bez predlohy sa použije
   anglické znenie a uloží sa s `lang: 'en'`. Predvyplní sa len vtedy, keď kľúč
   v `localStorage` vôbec neexistuje – vymazanú históriu to nevráti.
+- Počas prehrávania sa hlavné tlačidlo zmení na Zastaviť – ale len kým je pole
+  prázdne. Po napísaní ďalšej vety sa vráti na Prehrať, takže tlačidlo vždy robí
+  to, čo je na ňom napísané. Rovnako sa správa tlačidlo v prekrytí.
 - Tlačidlo Ukázať (a ikona oka pri každom zázname) zobrazí text na celú
   obrazovku – pre hluk, pre nedoslýchavých a všade, kde zvuk nestačí.
   Veľkosť písma sa volí podľa dĺžky textu a kým je text zobrazený, drží sa
