@@ -1,8 +1,10 @@
 // build.mjs stamps the build id, so every deploy starts with a clean cache.
 const CACHE_NAME = 'speechless-shell-__BUILD_ID__'
-// Only the entry document is precached; versioned assets (main.js?v=…) are
-// picked up by the fetch handler, so the list never goes out of sync.
-const SHELL = ['./', 'index.html']
+// build.mjs stamps the hashed file names here. Runtime caching alone is not
+// enough: the script is fetched before this worker is even registered, so
+// offline it would be missing on the very first try.
+const BUILD_ASSETS = []
+const SHELL = ['./', 'index.html', ...BUILD_ASSETS]
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(
@@ -41,6 +43,15 @@ self.addEventListener('fetch', (event) => {
 				caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
 				return response
 			})
-			.catch(() => caches.match(request).then((cached) => cached ?? caches.match('./'))),
+			.catch(() =>
+				caches.match(request).then((cached) => {
+					if (cached) {
+						return cached
+					}
+					// Only a navigation may fall back to the shell. Answering a script
+					// request with HTML does not rescue the page, it breaks it.
+					return request.mode === 'navigate' ? caches.match('./') : Response.error()
+				}),
+			),
 	)
 })

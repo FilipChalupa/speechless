@@ -52,10 +52,15 @@ for (const [name, expected] of [
 
 await writeFile(join(dist, 'index.html'), html)
 
-const sw = (await readFile(join(root, 'sw.js'), 'utf8')).replace(
-	'__BUILD_ID__',
-	hashOf(html + styleCss + mainJs),
-)
+const sw = (await readFile(join(root, 'sw.js'), 'utf8'))
+	.replace('__BUILD_ID__', hashOf(html + styleCss + mainJs))
+	.replace('const BUILD_ASSETS = []', `const BUILD_ASSETS = ${JSON.stringify([styleName, mainName, ...COPIED])}`)
+
+// Without the hashed names the worker would cache a shell it cannot run.
+if (!sw.includes(mainName) || !sw.includes(styleName)) {
+	throw new Error('sw.js did not receive the hashed asset names')
+}
+
 await writeFile(join(dist, 'sw.js'), sw)
 
 for (const asset of COPIED) {
