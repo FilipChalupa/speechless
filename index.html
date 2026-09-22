@@ -9,6 +9,22 @@
 		<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#101418" media="(prefers-color-scheme: dark)" />
 		<meta name="description" content="Type a message and let the device say it out loud." />
+		<link rel="canonical" href="https://filipchalupa.cz/speechless/" />
+		<!-- Link previews (Slack, Facebook, iMessage, X). The image URL has to be
+		     absolute; make-og-image.mjs regenerates the picture. -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Speechless" />
+		<meta property="og:title" content="Speechless" />
+		<meta property="og:description" content="Type a message and let the device say it out loud." />
+		<meta property="og:url" content="https://filipchalupa.cz/speechless/" />
+		<meta property="og:image" content="https://filipchalupa.cz/speechless/og-image.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="A white speech bubble on blue next to the name Speechless." />
+		<meta property="og:locale" content="en_US" />
+		<meta property="og:locale:alternate" content="cs_CZ" />
+		<meta property="og:locale:alternate" content="sk_SK" />
+		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -58,6 +74,17 @@
 					<span id="language-label">Speech language</span>
 					<select class="settings-select" id="language"></select>
 				</label>
+				<label class="settings-row" for="device-voice">
+					<span class="settings-text">
+						<span id="device-voice-label">Only the device voice</span>
+						<span class="settings-note" id="device-voice-note">Nothing you type is sent to Google. The voice sounds less natural.</span>
+					</span>
+					<input class="settings-checkbox" id="device-voice" type="checkbox" />
+				</label>
+				<p class="settings-footer">
+					<!-- main.js points this at the section in the interface language. -->
+					<a class="settings-link" id="privacy-link" href="privacy.html">Privacy</a>
+				</p>
 			</section>
 		</main>
 

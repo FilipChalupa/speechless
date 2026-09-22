@@ -1,0 +1,237 @@
+<!doctype html>
+<!-- One page, three languages: main.js links here with the interface language
+     in the hash, and the stylesheet shows only that section when a browser
+     understands :has(). -->
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="referrer" content="no-referrer" />
+		<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#101418" media="(prefers-color-scheme: dark)" />
+		<meta name="description" content="What Speechless does with the text you type." />
+		<link rel="canonical" href="https://filipchalupa.cz/speechless/privacy.html" />
+		<!-- Link previews (Slack, Facebook, iMessage, X). The image URL has to be
+		     absolute; make-og-image.mjs regenerates the picture. -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Speechless" />
+		<meta property="og:title" content="Privacy · Speechless" />
+		<meta property="og:description" content="What Speechless does with the text you type." />
+		<meta property="og:url" content="https://filipchalupa.cz/speechless/privacy.html" />
+		<meta property="og:image" content="https://filipchalupa.cz/speechless/og-image.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="A white speech bubble on blue next to the name Speechless." />
+		<meta property="og:locale" content="en_US" />
+		<meta property="og:locale:alternate" content="cs_CZ" />
+		<meta property="og:locale:alternate" content="sk_SK" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<title>Privacy · Speechless</title>
+		<link rel="icon" href="icon.svg" type="image/svg+xml" />
+		<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+		<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+		<!-- build.mjs rewrites this to the content-hashed file name. -->
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<main class="page">
+			<nav class="page-nav" aria-label="Language">
+				<a class="page-back" href="./">← Speechless</a>
+				<a href="#en" hreflang="en">English</a>
+				<a href="#cs" hreflang="cs">Čeština</a>
+				<a href="#sk" hreflang="sk">Slovenčina</a>
+			</nav>
+
+			<section id="en" lang="en">
+				<h1>Privacy</h1>
+				<p>
+					Speechless is a small free app made by one person. It has no user accounts, no
+					analytics, no cookies and no server of its own, and the author never sees what you
+					type. This page says in plain words what does happen with your text. It was written
+					by the author, not by a lawyer.
+				</p>
+
+				<h2>What stays on your phone</h2>
+				<p>
+					Your history and your language choice are kept in the browser's storage on your
+					device (localStorage). The app never sends them anywhere. Clear in the History
+					section removes the unpinned entries; unpin the rest first to remove everything.
+					Deleting the site data in your browser removes it all as well.
+				</p>
+
+				<h2>What leaves your phone</h2>
+				<ul>
+					<li>
+						<strong>Play sends the text to Google.</strong> The speech comes from Google
+						Translate (translate.google.com). Every text you play is sent there together
+						with the chosen language, and Google also sees your IP address. This is a public
+						Google service used without any agreement between the author and Google;
+						<a href="https://policies.google.com/privacy?hl=en">Google's Privacy Policy</a>
+						applies. The request carries no referrer, so Google is not told which website it
+						came from.
+					</li>
+					<li>
+						<strong>Show sends nothing.</strong> The text only appears on your screen.
+					</li>
+					<li>
+						<strong>The device voice.</strong> Offline, when Google fails, or when
+						<em>Only the device voice</em> is on in Settings, your phone's own speech engine
+						speaks instead and the app sends nothing. Whether that engine works fully on the
+						phone or contacts its maker's servers is up to the phone's maker, not this app.
+					</li>
+					<li>
+						<strong>Loading the app.</strong> Speechless is hosted on GitHub Pages. GitHub
+						logs the IP addresses of visitors for security; see
+						<a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection">GitHub Pages data collection</a>.
+					</li>
+				</ul>
+
+				<h2>Your choices</h2>
+				<ul>
+					<li>
+						Turn on <em>Only the device voice</em> in Settings, and nothing you type is sent
+						to Google.
+					</li>
+					<li>Use Show instead of Play for anything you would rather not send anywhere.</li>
+					<li>Clear the history whenever you like; it is only on your phone.</li>
+				</ul>
+
+				<h2>Contact</h2>
+				<p>
+					Speechless is made by Filip Chalupa. The source code is public
+					<a href="https://github.com/FilipChalupa/speechless">on GitHub</a>. Questions about
+					privacy: write through <a href="https://filipchalupa.cz">filipchalupa.cz</a>.
+				</p>
+				<p class="page-updated">Last updated: 22 September 2026.</p>
+			</section>
+
+			<section id="cs" lang="cs">
+				<h1>Soukromí</h1>
+				<p>
+					Speechless je malá bezplatná aplikace od jednoho člověka. Nemá uživatelské účty,
+					analytiku, cookies ani vlastní server a autor nikdy nevidí, co píšete. Tato stránka
+					říká obyčejnými slovy, co se s vaším textem přece jen děje. Psal ji autor, ne
+					právník.
+				</p>
+
+				<h2>Co zůstává ve vašem telefonu</h2>
+				<p>
+					Historie a zvolený jazyk jsou uloženy v úložišti prohlížeče ve vašem zařízení
+					(localStorage). Aplikace je nikam neposílá. Tlačítko Vymazat v sekci Historie
+					odstraní nepřipnuté položky; pro smazání všeho nejdřív odepněte zbytek. Smazání dat
+					webu v prohlížeči odstraní všechno také.
+				</p>
+
+				<h2>Co z telefonu odchází</h2>
+				<ul>
+					<li>
+						<strong>Přehrát posílá text Googlu.</strong> Hlas pochází z Google Translate
+						(translate.google.com). Každý přehrávaný text se tam posílá spolu se zvoleným
+						jazykem a Google vidí i vaši IP adresu. Jde o veřejnou službu Googlu používanou
+						bez jakékoli smlouvy mezi autorem a Googlem; platí
+						<a href="https://policies.google.com/privacy?hl=cs">zásady ochrany soukromí Googlu</a>.
+						Požadavek nenese referrer, takže Google se nedozví, ze kterého webu přišel.
+					</li>
+					<li>
+						<strong>Ukázat neposílá nic.</strong> Text se jen zobrazí na obrazovce.
+					</li>
+					<li>
+						<strong>Hlas zařízení.</strong> Offline, když Google selže, nebo když je v
+						Nastavení zapnuto <em>Jen hlas zařízení</em>, mluví místo toho vlastní hlasový
+						modul telefonu a aplikace nic neposílá. Zda tento modul pracuje celý v telefonu,
+						nebo se spojuje se servery svého výrobce, určuje výrobce telefonu, ne tato
+						aplikace.
+					</li>
+					<li>
+						<strong>Načtení aplikace.</strong> Speechless běží na GitHub Pages. GitHub z
+						bezpečnostních důvodů loguje IP adresy návštěvníků; viz
+						<a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection">sběr dat na GitHub Pages</a>
+						(anglicky).
+					</li>
+				</ul>
+
+				<h2>Vaše možnosti</h2>
+				<ul>
+					<li>
+						Zapněte v Nastavení <em>Jen hlas zařízení</em> a nic z toho, co napíšete, se
+						Googlu neposílá.
+					</li>
+					<li>Použijte Ukázat místo Přehrát pro cokoli, co byste raději nikam neposílali.</li>
+					<li>Historii kdykoli vymažte; je jen ve vašem telefonu.</li>
+				</ul>
+
+				<h2>Kontakt</h2>
+				<p>
+					Speechless vytvořil Filip Chalupa. Zdrojový kód je veřejně
+					<a href="https://github.com/FilipChalupa/speechless">na GitHubu</a>. Dotazy k
+					soukromí: napište přes <a href="https://filipchalupa.cz">filipchalupa.cz</a>.
+				</p>
+				<p class="page-updated">Poslední aktualizace: 22. září 2026.</p>
+			</section>
+
+			<section id="sk" lang="sk">
+				<h1>Súkromie</h1>
+				<p>
+					Speechless je malá bezplatná aplikácia od jedného človeka. Nemá používateľské účty,
+					analytiku, cookies ani vlastný server a autor nikdy nevidí, čo píšete. Táto stránka
+					hovorí obyčajnými slovami, čo sa s vaším textom predsa len deje. Písal ju autor, nie
+					právnik.
+				</p>
+
+				<h2>Čo zostáva vo vašom telefóne</h2>
+				<p>
+					História a zvolený jazyk sú uložené v úložisku prehliadača vo vašom zariadení
+					(localStorage). Aplikácia ich nikam neposiela. Tlačidlo Vymazať v sekcii História
+					odstráni nepripnuté položky; na zmazanie všetkého najprv odopnite zvyšok. Zmazanie
+					údajov webu v prehliadači odstráni všetko tiež.
+				</p>
+
+				<h2>Čo z telefónu odchádza</h2>
+				<ul>
+					<li>
+						<strong>Prehrať posiela text Googlu.</strong> Hlas pochádza z Google Translate
+						(translate.google.com). Každý prehrávaný text sa tam posiela spolu so zvoleným
+						jazykom a Google vidí aj vašu IP adresu. Ide o verejnú službu Googlu používanú
+						bez akejkoľvek zmluvy medzi autorom a Googlom; platia
+						<a href="https://policies.google.com/privacy?hl=sk">zásady ochrany súkromia Googlu</a>.
+						Požiadavka nenesie referrer, takže Google sa nedozvie, z ktorého webu prišla.
+					</li>
+					<li>
+						<strong>Ukázať neposiela nič.</strong> Text sa len zobrazí na obrazovke.
+					</li>
+					<li>
+						<strong>Hlas zariadenia.</strong> Offline, keď Google zlyhá, alebo keď je v
+						Nastaveniach zapnuté <em>Len hlas zariadenia</em>, hovorí namiesto toho vlastný
+						hlasový modul telefónu a aplikácia nič neposiela. Či tento modul pracuje celý v
+						telefóne, alebo sa spája so servermi svojho výrobcu, určuje výrobca telefónu, nie
+						táto aplikácia.
+					</li>
+					<li>
+						<strong>Načítanie aplikácie.</strong> Speechless beží na GitHub Pages. GitHub z
+						bezpečnostných dôvodov loguje IP adresy návštevníkov; pozri
+						<a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection">zber údajov na GitHub Pages</a>
+						(anglicky).
+					</li>
+				</ul>
+
+				<h2>Vaše možnosti</h2>
+				<ul>
+					<li>
+						Zapnite v Nastaveniach <em>Len hlas zariadenia</em> a nič z toho, čo napíšete, sa
+						Googlu neposiela.
+					</li>
+					<li>Použite Ukázať namiesto Prehrať pre čokoľvek, čo by ste radšej nikam neposielali.</li>
+					<li>Históriu kedykoľvek vymažte; je len vo vašom telefóne.</li>
+				</ul>
+
+				<h2>Kontakt</h2>
+				<p>
+					Speechless vytvoril Filip Chalupa. Zdrojový kód je verejne
+					<a href="https://github.com/FilipChalupa/speechless">na GitHube</a>. Otázky k súkromiu:
+					napíšte cez <a href="https://filipchalupa.cz">filipchalupa.cz</a>.
+				</p>
+				<p class="page-updated">Posledná aktualizácia: 22. septembra 2026.</p>
+			</section>
+		</main>
+	</body>
+</html>

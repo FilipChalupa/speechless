@@ -246,6 +246,38 @@ body {
 	background: var(--surface);
 }
 
+.settings-text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.125rem;
+	min-width: 0;
+}
+
+.settings-note {
+	color: var(--text-muted);
+	font-size: 0.875rem;
+}
+
+.settings-checkbox {
+	flex: none;
+	width: 1.5rem;
+	height: 1.5rem;
+	margin: 0;
+	accent-color: var(--accent);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.settings-footer {
+	margin: 0;
+	font-size: 0.9375rem;
+}
+
+.settings-link {
+	color: var(--text-muted);
+}
+
 .settings-select {
 	flex: 0 1 auto;
 	max-width: 60%;
@@ -385,4 +417,64 @@ body {
 .overlay-speak:active,
 .overlay-close:active {
 	opacity: 0.8;
+}
+
+/* privacy.html */
+.page {
+	max-width: 40rem;
+	margin: 0 auto;
+	padding: 1rem;
+	padding-top: max(1rem, env(safe-area-inset-top));
+	padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.page-nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+	font-size: 0.9375rem;
+}
+
+.page-back {
+	margin-inline-end: auto;
+}
+
+.page a {
+	color: var(--accent);
+}
+
+.page h1 {
+	margin: 0 0 1rem;
+	font-size: 1.75rem;
+	line-height: 1.2;
+}
+
+.page h2 {
+	margin: 1.5rem 0 0.5rem;
+	font-size: 1.125rem;
+}
+
+.page p,
+.page ul {
+	margin: 0 0 0.75rem;
+}
+
+.page ul {
+	padding-inline-start: 1.25rem;
+}
+
+.page li + li {
+	margin-top: 0.5rem;
+}
+
+.page-updated {
+	color: var(--text-muted);
+	font-size: 0.9375rem;
+}
+
+/* One language at a time once the hash names it; every browser without
+   :has() simply shows all three. */
+.page:has(section:target) section:not(:target) {
+	display: none;
 }

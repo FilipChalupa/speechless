@@ -30,6 +30,9 @@ const TRANSLATIONS = {
 		unpin: 'Unpin',
 		settings: 'Settings',
 		speechLanguage: 'Speech language',
+		deviceVoice: 'Only the device voice',
+		deviceVoiceNote: 'Nothing you type is sent to Google. The voice sounds less natural.',
+		privacy: 'Privacy',
 		show: 'Show',
 		close: 'Close',
 	},
@@ -50,6 +53,9 @@ const TRANSLATIONS = {
 		unpin: 'Odepnout',
 		settings: 'Nastavení',
 		speechLanguage: 'Jazyk řeči',
+		deviceVoice: 'Jen hlas zařízení',
+		deviceVoiceNote: 'Nic z napsaného se neposílá Googlu. Hlas zní méně přirozeně.',
+		privacy: 'Soukromí',
 		show: 'Ukázat',
 		close: 'Zavřít',
 	},
@@ -70,6 +76,9 @@ const TRANSLATIONS = {
 		unpin: 'Odopnúť',
 		settings: 'Nastavenia',
 		speechLanguage: 'Jazyk reči',
+		deviceVoice: 'Len hlas zariadenia',
+		deviceVoiceNote: 'Nič z napísaného sa neposiela Googlu. Hlas znie menej prirodzene.',
+		privacy: 'Súkromie',
 		show: 'Ukázať',
 		close: 'Zavrieť',
 	},
@@ -100,6 +109,7 @@ const PRESETS = {
 const MAX_CHUNK_LENGTH = 180
 const HISTORY_STORAGE_KEY = 'speechless:history'
 const LANGUAGE_STORAGE_KEY = 'speechless:language'
+const DEVICE_VOICE_STORAGE_KEY = 'speechless:device-voice'
 const HISTORY_LIMIT = 50
 
 const form = document.querySelector('#form')
@@ -113,6 +123,10 @@ const submitButton = document.querySelector('#submit')
 const historyHeading = document.querySelector('#history-heading')
 const settingsHeading = document.querySelector('#settings-heading')
 const languageLabel = document.querySelector('#language-label')
+const deviceVoiceCheckbox = document.querySelector('#device-voice')
+const deviceVoiceLabel = document.querySelector('#device-voice-label')
+const deviceVoiceNote = document.querySelector('#device-voice-note')
+const privacyLink = document.querySelector('#privacy-link')
 const showButton = document.querySelector('#show')
 const overlay = document.querySelector('#overlay')
 const overlayText = document.querySelector('#overlay-text')
@@ -139,9 +153,12 @@ let wakeLock = null
 let playing = false
 let abortCurrentChunk = null
 let language = loadLanguage()
+// Opt out of Google TTS: the typed text then never leaves the phone.
+let deviceVoiceOnly = loadDeviceVoiceOnly()
 let history = loadHistory()
 
 renderLanguages()
+deviceVoiceCheckbox.checked = deviceVoiceOnly
 renderTexts()
 renderHistory()
 
@@ -163,6 +180,11 @@ function renderTexts() {
 	historyEmpty.textContent = strings.empty
 	settingsHeading.textContent = strings.settings
 	languageLabel.textContent = strings.speechLanguage
+	deviceVoiceLabel.textContent = strings.deviceVoice
+	deviceVoiceNote.textContent = strings.deviceVoiceNote
+	privacyLink.textContent = strings.privacy
+	// The page holds every translation; the hash picks the matching one.
+	privacyLink.href = `privacy.html#${uiLanguage()}`
 	showButton.textContent = strings.show
 	overlayCloseButton.textContent = strings.close
 	renderActionButtons()
@@ -191,6 +213,14 @@ function loadLanguage() {
 		// Fall through to the browser preference.
 	}
 	return preferredLanguage()
+}
+
+function loadDeviceVoiceOnly() {
+	try {
+		return localStorage.getItem(DEVICE_VOICE_STORAGE_KEY) === 'true'
+	} catch {
+		return false
+	}
 }
 
 function renderLanguages() {
@@ -533,8 +563,9 @@ async function speak(text, spokenLanguage = language) {
 	setPlaying(true)
 
 	// Offline the request would only fail slowly, and on iOS the user gesture
-	// that allows speaking would be gone by then.
-	if (navigator.onLine === false) {
+	// that allows speaking would be gone by then. With the opt-in the request
+	// must not be made at all: that is the whole point of the setting.
+	if (deviceVoiceOnly || navigator.onLine === false) {
 		await speakWithDevice(text, spokenLanguage, token)
 		return
 	}
@@ -673,6 +704,15 @@ languageSelect.addEventListener('change', () => {
 	renderTexts()
 	renderHistory()
 	input.focus()
+})
+
+deviceVoiceCheckbox.addEventListener('change', () => {
+	deviceVoiceOnly = deviceVoiceCheckbox.checked
+	try {
+		localStorage.setItem(DEVICE_VOICE_STORAGE_KEY, String(deviceVoiceOnly))
+	} catch {
+		// The choice then lasts only for this visit.
+	}
 })
 
 clearHistoryButton.addEventListener('click', () => {
