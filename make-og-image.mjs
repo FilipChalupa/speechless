@@ -27,7 +27,8 @@ await page.setContent(
 		body {
 			display: flex;
 			align-items: center;
-			gap: 72px;
+			justify-content: center;
+			gap: 64px;
 			width: ${WIDTH}px;
 			height: ${HEIGHT}px;
 			padding: 0 96px;
@@ -36,10 +37,11 @@ await page.setContent(
 			color: #ffffff;
 			font-family: Inter, "Segoe UI", Ubuntu, Roboto, "DejaVu Sans", system-ui, sans-serif;
 		}
-		svg { display: block; flex: none; width: 360px; height: 360px; }
-		.text { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
-		h1 { margin: 0; font-size: 128px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
-		p { margin: 0; font-size: 44px; font-weight: 400; line-height: 1.25; opacity: 0.88; }
+		svg { display: block; flex: none; width: 320px; height: 320px; }
+		/* Sized so the title clears the right padding; a wider face would overflow it. */
+		.text { display: flex; flex-direction: column; gap: 20px; max-width: 560px; }
+		h1 { margin: 0; font-size: 104px; font-weight: 700; line-height: 1; letter-spacing: -0.02em; }
+		p { margin: 0; font-size: 40px; font-weight: 400; line-height: 1.25; opacity: 0.88; }
 	</style>
 	${icon}
 	<div class="text">
