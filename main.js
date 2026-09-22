@@ -233,7 +233,7 @@ function initApp() {
 	const clearHistoryButton = document.querySelector('#clear-history')
 	const submitButton = document.querySelector('#submit')
 	const historyHeading = document.querySelector('#history-heading')
-	const settingsLink = document.querySelector('#settings-link')
+	const settingsLabel = document.querySelector('#settings-label')
 	const privacyLink = document.querySelector('#privacy-link')
 	const showButton = document.querySelector('#show')
 	const overlay = document.querySelector('#overlay')
@@ -273,7 +273,7 @@ function initApp() {
 		submitButton.textContent = strings.play
 		historyHeading.textContent = strings.history
 		historyEmpty.textContent = strings.empty
-		settingsLink.textContent = strings.settings
+		settingsLabel.textContent = strings.settings
 		privacyLink.textContent = strings.privacy
 		// The page holds every translation; the hash picks the matching one.
 		privacyLink.href = `privacy.html#${uiLanguage()}`
