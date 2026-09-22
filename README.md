@@ -25,6 +25,10 @@ Live at <https://speechless.filipchalupa.cz/>.
   (localStorage). Tapping an entry plays it again.
 - The star pins an entry: pinned ones stay on top, never age out of the
   history limit, and survive the Clear unpinned button.
+- The pencil edits an entry in place: the row becomes a text field with
+  Save and Cancel, Enter saves and Escape cancels. Pin and language stay
+  with the entry. Empty text cancels rather than deletes, and saving a text
+  that another entry already has merges the two, keeping a pin from either.
 - While something is playing the main button turns into Stop — but only while
   the field is empty. Once the next sentence is typed it says Play again and
   speaks that, so the button always does what it says. The overlay button

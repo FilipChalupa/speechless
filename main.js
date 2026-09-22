@@ -28,6 +28,9 @@ const TRANSLATIONS = {
 		empty: 'Nothing has been spoken yet.',
 		pin: 'Pin',
 		unpin: 'Unpin',
+		edit: 'Edit',
+		save: 'Save',
+		cancel: 'Cancel',
 		settings: 'Settings',
 		speechLanguage: 'Speech language',
 		deviceVoice: 'Only the device voice',
@@ -51,6 +54,9 @@ const TRANSLATIONS = {
 		empty: 'Zatím nic nebylo přehráno.',
 		pin: 'Připnout',
 		unpin: 'Odepnout',
+		edit: 'Upravit',
+		save: 'Uložit',
+		cancel: 'Zrušit',
 		settings: 'Nastavení',
 		speechLanguage: 'Jazyk řeči',
 		deviceVoice: 'Jen hlas zařízení',
@@ -74,6 +80,9 @@ const TRANSLATIONS = {
 		empty: 'Zatiaľ nič nebolo prehraté.',
 		pin: 'Pripnúť',
 		unpin: 'Odopnúť',
+		edit: 'Upraviť',
+		save: 'Uložiť',
+		cancel: 'Zrušiť',
 		settings: 'Nastavenia',
 		speechLanguage: 'Jazyk reči',
 		deviceVoice: 'Len hlas zariadenia',
@@ -245,6 +254,10 @@ function initApp() {
 		'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
 		'<path fill="currentColor" d="M12 5C7 5 3 9.5 3 12s4 7 9 7 9-4.5 9-7-4-7-9-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/>' +
 		'</svg>'
+	const PENCIL_ICON =
+		'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+		'<path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/>' +
+		'</svg>'
 
 	// A single reused element keeps playback unlocked on iOS after the first tap.
 	const player = new Audio()
@@ -260,6 +273,8 @@ function initApp() {
 	let wakeLock = null
 	let playing = false
 	let abortCurrentChunk = null
+	// The text of the entry whose row is an editor right now, or null.
+	let editingText = null
 	let history = loadHistory()
 
 	renderTexts()
@@ -345,59 +360,158 @@ function initApp() {
 	}
 
 	function renderHistory() {
+		// A re-render while editing (a pin toggled, a phrase played) must not
+		// throw away what has been typed into the editor so far.
+		const draft = historyList.querySelector('.history-edit-input')?.value ?? null
 		historyList.replaceChildren(
-			...history.map(({ text, pinned, lang }) => {
-				const item = document.createElement('li')
-				item.className = 'history-item'
-
-				const play = document.createElement('button')
-				play.type = 'button'
-				play.className = 'history-play'
-				// An entry recorded in another language keeps speaking that one, so
-				// say which it is.
-				if (lang && lang !== language) {
-					const badge = document.createElement('span')
-					badge.className = 'history-lang'
-					badge.textContent = lang
-					// Visual only; the label below says it without running the code
-					// into the phrase.
-					badge.setAttribute('aria-hidden', 'true')
-					play.append(badge)
-					play.setAttribute('aria-label', `${text} (${lang})`)
-				}
-				play.append(text)
-				play.addEventListener('click', () => {
-					speak(text, lang ?? language)
-				})
-
-				const pin = document.createElement('button')
-				pin.type = 'button'
-				pin.className = 'history-pin'
-				pin.textContent = pinned ? '★' : '☆'
-				pin.setAttribute('aria-pressed', String(pinned))
-				pin.setAttribute('aria-label', pinned ? texts().unpin : texts().pin)
-				pin.addEventListener('click', () => {
-					togglePin(text)
-				})
-
-				const show = document.createElement('button')
-				show.type = 'button'
-				show.className = 'history-show'
-				show.innerHTML = EYE_ICON
-				show.setAttribute('aria-label', `${texts().show}: ${text}`)
-				show.addEventListener('click', () => {
-					openOverlay(text, lang ?? language)
-				})
-
-				item.append(play, show, pin)
-				return item
-			}),
+			...history.map((entry) => (entry.text === editingText ? renderEditor(entry, draft) : renderEntry(entry))),
 		)
 
 		const pinnedCount = history.filter((item) => item.pinned).length
 		historyEmpty.hidden = history.length > 0
 		clearHistoryButton.hidden = history.length === pinnedCount
 		clearHistoryButton.textContent = pinnedCount > 0 ? texts().clearUnpinned : texts().clear
+	}
+
+	function renderEntry({ text, pinned, lang }) {
+		const item = document.createElement('li')
+		item.className = 'history-item'
+
+		const play = document.createElement('button')
+		play.type = 'button'
+		play.className = 'history-play'
+		// An entry recorded in another language keeps speaking that one, so
+		// say which it is.
+		if (lang && lang !== language) {
+			const badge = document.createElement('span')
+			badge.className = 'history-lang'
+			badge.textContent = lang
+			// Visual only; the label below says it without running the code
+			// into the phrase.
+			badge.setAttribute('aria-hidden', 'true')
+			play.append(badge)
+			play.setAttribute('aria-label', `${text} (${lang})`)
+		}
+		play.append(text)
+		play.addEventListener('click', () => {
+			speak(text, lang ?? language)
+		})
+
+		const pin = document.createElement('button')
+		pin.type = 'button'
+		pin.className = 'history-pin'
+		pin.textContent = pinned ? '★' : '☆'
+		pin.setAttribute('aria-pressed', String(pinned))
+		pin.setAttribute('aria-label', pinned ? texts().unpin : texts().pin)
+		pin.addEventListener('click', () => {
+			togglePin(text)
+		})
+
+		const show = document.createElement('button')
+		show.type = 'button'
+		show.className = 'history-show'
+		show.innerHTML = EYE_ICON
+		show.setAttribute('aria-label', `${texts().show}: ${text}`)
+		show.addEventListener('click', () => {
+			openOverlay(text, lang ?? language)
+		})
+
+		const edit = document.createElement('button')
+		edit.type = 'button'
+		edit.className = 'history-edit-button'
+		edit.innerHTML = PENCIL_ICON
+		edit.setAttribute('aria-label', `${texts().edit}: ${text}`)
+		edit.addEventListener('click', () => {
+			startEditing(text)
+		})
+
+		item.append(play, show, edit, pin)
+		return item
+	}
+
+	// The row itself turns into the editor, so the phrase stays where it is,
+	// pinned or not, and the composer is free for the next thing to say.
+	function renderEditor({ text }, draft) {
+		const item = document.createElement('li')
+		item.className = 'history-item history-item-editing'
+
+		const form = document.createElement('form')
+		form.className = 'history-edit'
+
+		const field = document.createElement('textarea')
+		field.className = 'history-edit-input'
+		field.rows = 2
+		field.value = draft ?? text
+		field.autocomplete = 'off'
+		field.autocapitalize = 'sentences'
+		field.enterKeyHint = 'done'
+		field.setAttribute('aria-label', texts().edit)
+
+		const save = document.createElement('button')
+		save.type = 'submit'
+		save.className = 'history-edit-save'
+		save.textContent = texts().save
+
+		const cancel = document.createElement('button')
+		cancel.type = 'button'
+		cancel.className = 'history-edit-cancel'
+		cancel.textContent = texts().cancel
+		cancel.addEventListener('click', stopEditing)
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault()
+			finishEditing(text, field.value)
+		})
+		field.addEventListener('keydown', (event) => {
+			if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+				event.preventDefault()
+				finishEditing(text, field.value)
+			} else if (event.key === 'Escape') {
+				event.preventDefault()
+				stopEditing()
+			}
+		})
+
+		const actions = document.createElement('div')
+		actions.className = 'history-edit-actions'
+		actions.append(save, cancel)
+		form.append(field, actions)
+		item.append(form)
+		return item
+	}
+
+	function startEditing(text) {
+		editingText = text
+		renderHistory()
+		const field = historyList.querySelector('.history-edit-input')
+		field.focus()
+		field.setSelectionRange(field.value.length, field.value.length)
+	}
+
+	function stopEditing() {
+		editingText = null
+		renderHistory()
+		input.focus()
+	}
+
+	// Empty text is a cancel, not a deletion: entries only leave through Clear.
+	function finishEditing(oldText, value) {
+		const text = value.trim()
+		if (!text || text === oldText) {
+			stopEditing()
+			return
+		}
+		const edited = history.find((item) => item.text === oldText)
+		const duplicate = history.find((item) => item.text === text)
+		// Two rows with one text would be a puzzle, so they merge, and a pin on
+		// either side survives.
+		history = sortPinnedFirst(
+			history
+				.filter((item) => item === edited || item.text !== text)
+				.map((item) => (item === edited ? { ...item, text, pinned: item.pinned || duplicate?.pinned === true } : item)),
+		)
+		saveHistory()
+		stopEditing()
 	}
 
 	function addToHistory(text) {

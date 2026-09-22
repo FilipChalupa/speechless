@@ -318,7 +318,8 @@ body {
 	background: var(--surface-hover);
 }
 
-.history-show {
+.history-show,
+.history-edit-button {
 	flex: none;
 	min-height: 3rem;
 	padding: 0.75rem 0.75rem;
@@ -329,14 +330,70 @@ body {
 	touch-action: manipulation;
 }
 
-.history-show svg {
+.history-show svg,
+.history-edit-button svg {
 	display: block;
 	width: 1.375rem;
 	height: 1.375rem;
 }
 
-.history-show:active {
+.history-show:active,
+.history-edit-button:active {
 	background: var(--surface-hover);
+}
+
+.history-edit {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 0.75rem;
+}
+
+.history-edit-input {
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	border: 1px solid var(--border);
+	border-radius: 0.625rem;
+	background: var(--background);
+	color: inherit;
+	font: inherit;
+	resize: vertical;
+}
+
+.history-edit-input:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 1px;
+}
+
+.history-edit-actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.history-edit-save,
+.history-edit-cancel {
+	flex: 1;
+	min-height: 2.75rem;
+	border: 1px solid var(--border);
+	border-radius: 0.625rem;
+	background: var(--background);
+	color: inherit;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.history-edit-save {
+	border-color: transparent;
+	background: var(--accent);
+	color: var(--accent-text);
+}
+
+.history-edit-save:active,
+.history-edit-cancel:active {
+	opacity: 0.8;
 }
 
 /* Must come with the display rule below: an author `display` beats the
