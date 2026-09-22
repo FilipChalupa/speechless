@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
@@ -24,6 +25,37 @@ const COPIED_UNCACHED = ['og-image.png']
 
 const hashOf = (content) => createHash('sha256').update(content).digest('hex').slice(0, 8)
 
+// The privacy page shows when it last changed. Git knows; a hand-written date
+// in three languages would go stale the first time the text is touched. The
+// workflow checks out the full history for this, and outside git (a tarball,
+// a fresh clone with one commit) today's date is the honest fallback.
+function lastChangeOf(file) {
+	try {
+		const iso = execFileSync('git', ['log', '-1', '--format=%cs', '--', file], { cwd: root, encoding: 'utf8' }).trim()
+		if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+			return iso
+		}
+	} catch {
+		// Not a git checkout, or git is missing.
+	}
+	return new Date().toISOString().slice(0, 10)
+}
+
+function stampDates(page, html) {
+	const iso = lastChangeOf(page)
+	const date = new Date(`${iso}T12:00:00Z`)
+	let count = 0
+	const stamped = html.replace(/<time data-updated="([\w-]+)">__UPDATED__<\/time>/g, (_, locale) => {
+		count += 1
+		const text = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(date)
+		return `<time datetime="${iso}">${text}</time>`
+	})
+	if (html.includes('__UPDATED__') && count === 0) {
+		throw new Error(`${page} has an __UPDATED__ placeholder the build did not recognise`)
+	}
+	return stamped
+}
+
 await rm(dist, { recursive: true, force: true })
 await mkdir(dist, { recursive: true })
 
@@ -43,7 +75,7 @@ const PAGES = [
 ]
 let pagesHtml = ''
 for (const [page, references] of PAGES) {
-	let html = await readFile(join(root, page), 'utf8')
+	let html = stampDates(page, await readFile(join(root, page), 'utf8'))
 	for (const [name, hashed] of references) {
 		html = html.replace(`href="${name}"`, `href="${hashed}"`).replace(`src="${name}"`, `src="${hashed}"`)
 		// A silently unreplaced reference would ship a page pointing at a file

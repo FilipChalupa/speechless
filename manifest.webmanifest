@@ -1,7 +1,7 @@
 {
 	"name": "Speechless",
 	"short_name": "Speechless",
-	"description": "Type a message and the device says it out loud.",
+	"description": "Type a message and let the phone say it out loud.",
 	"lang": "en",
 	"dir": "ltr",
 	"start_url": "./",
