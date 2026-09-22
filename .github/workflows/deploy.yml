@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
+# Work lands on main; a release is a push of deploy. Fast-forward it to the
+# commit that should go live:
+#   git push origin main:deploy
 on:
   push:
-    branches: [main]
+    branches: [deploy]
   workflow_dispatch:
 
 permissions:

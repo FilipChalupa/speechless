@@ -115,8 +115,13 @@ white for the bubble.
 
 ## Deployment
 
-A push to `main` runs the workflow, which calls `node build.mjs` and deploys
-the resulting `dist/` to GitHub Pages. Nothing is compiled: the build renames
+A push to the `deploy` branch runs the workflow, which calls `node build.mjs`
+and deploys the resulting `dist/` to GitHub Pages. Work lands on `main` without
+going live; to release, move `deploy` to the commit that should be public:
+
+```sh
+git push origin main:deploy
+``` Nothing is compiled: the build renames
 `style.css` and `main.js` to `style.<hash>.css` and `main.<hash>.js`, rewrites
 the references in `index.html`, `settings.html` and `privacy.html`, and stamps
 those names into the service worker.
