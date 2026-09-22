@@ -35,9 +35,10 @@ const mainName = `main.${hashOf(mainJs)}.js`
 await writeFile(join(dist, styleName), styleCss)
 await writeFile(join(dist, mainName), mainJs)
 
-// Every page gets the hashed stylesheet; only the app itself runs the script.
+// Every page gets the hashed stylesheet; the privacy page runs no script.
 const PAGES = [
 	['index.html', [['style.css', styleName], ['main.js', mainName]]],
+	['settings.html', [['style.css', styleName], ['main.js', mainName]]],
 	['privacy.html', [['style.css', styleName]]],
 ]
 let pagesHtml = ''
@@ -58,8 +59,8 @@ for (const [page, references] of PAGES) {
 	pagesHtml += html
 }
 
-// The privacy page is precached by name, so it has to move the build id too
-// or a changed text would never reach an installed app that stays offline.
+// The other pages are precached by name, so they have to move the build id
+// too, or a changed text would never reach an installed app that stays offline.
 const sw = (await readFile(join(root, 'sw.js'), 'utf8'))
 	.replace('__BUILD_ID__', hashOf(pagesHtml + styleCss + mainJs))
 	.replace('const BUILD_ASSETS = []', `const BUILD_ASSETS = ${JSON.stringify([styleName, mainName, ...COPIED])}`)

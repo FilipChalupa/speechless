@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- Texts start in English; main.js switches them to the chosen speech language. -->
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="referrer" content="no-referrer" />
+		<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#101418" media="(prefers-color-scheme: dark)" />
+		<meta name="description" content="Speech language and privacy settings for Speechless." />
+		<link rel="canonical" href="https://filipchalupa.cz/speechless/settings.html" />
+		<!-- Link previews (Slack, Facebook, iMessage, X). The image URL has to be
+		     absolute; make-og-image.mjs regenerates the picture. -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Speechless" />
+		<meta property="og:title" content="Settings · Speechless" />
+		<meta property="og:description" content="Speech language and privacy settings for Speechless." />
+		<meta property="og:url" content="https://filipchalupa.cz/speechless/settings.html" />
+		<meta property="og:image" content="https://filipchalupa.cz/speechless/og-image.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="A white speech bubble on blue next to the name Speechless." />
+		<meta property="og:locale" content="en_US" />
+		<meta property="og:locale:alternate" content="cs_CZ" />
+		<meta property="og:locale:alternate" content="sk_SK" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<title>Settings · Speechless</title>
+		<link rel="icon" href="icon.svg" type="image/svg+xml" />
+		<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+		<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+		<!-- build.mjs rewrites this to the content-hashed file name. -->
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<main class="page">
+			<nav class="page-nav">
+				<a class="page-back" href="./">← Speechless</a>
+			</nav>
+			<h1 id="settings-heading">Settings</h1>
+			<label class="settings-row" for="language">
+				<span id="language-label">Speech language</span>
+				<select class="settings-select" id="language"></select>
+			</label>
+			<label class="settings-row" for="device-voice">
+				<span class="settings-text">
+					<span id="device-voice-label">Only the device voice</span>
+					<span class="settings-note" id="device-voice-note">Nothing you type is sent to Google. The voice sounds less natural.</span>
+				</span>
+				<input class="settings-checkbox" id="device-voice" type="checkbox" />
+			</label>
+			<p class="footer">
+				<!-- main.js points this at the section in the interface language. -->
+				<a class="footer-link" id="privacy-link" href="privacy.html">Privacy</a>
+			</p>
+		</main>
+
+		<script src="main.js"></script>
+	</body>
+</html>

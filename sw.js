@@ -4,7 +4,7 @@ const CACHE_NAME = 'speechless-shell-__BUILD_ID__'
 // enough: the script is fetched before this worker is even registered, so
 // offline it would be missing on the very first try.
 const BUILD_ASSETS = []
-const SHELL = ['./', 'index.html', 'privacy.html', ...BUILD_ASSETS]
+const SHELL = ['./', 'index.html', 'settings.html', 'privacy.html', ...BUILD_ASSETS]
 
 self.addEventListener('install', (event) => {
 	event.waitUntil(
