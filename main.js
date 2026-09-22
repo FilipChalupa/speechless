@@ -90,6 +90,9 @@ const TRANSLATIONS = {
 	},
 }
 const FALLBACK_UI_LANGUAGE = 'en'
+// A browser that names none of the languages above gets Czech: the app is
+// made for people here first, and the list order is no statement about that.
+const DEFAULT_LANGUAGE = 'cs'
 // Seeded on the very first run: with an empty history the first real situation
 // is the worst moment to be typing from scratch.
 const PRESETS = {
@@ -156,7 +159,7 @@ function preferredLanguage() {
 			return base
 		}
 	}
-	return LANGUAGES[0].code
+	return DEFAULT_LANGUAGE
 }
 
 function loadLanguage() {

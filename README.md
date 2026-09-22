@@ -41,8 +41,9 @@ Live at <https://speechless.filipchalupa.cz/>.
   phone out loud is awkward. Font size follows the length of the text and a
   wake lock keeps the screen on while it is up. Showing stays silent on
   purpose; the overlay carries its own button to speak.
-- The speech language is chosen in Settings and defaults to
-  `navigator.languages` (list of `LANGUAGES` in `main.js`). The choice is
+- The speech language is chosen in Settings and defaults to the first of
+  `navigator.languages` that the app has (list of `LANGUAGES` in `main.js`),
+  or Czech when none of them is. The choice is
   remembered, and every history entry keeps the language it was recorded in,
   so a pinned Slovak phrase is never read out by a German voice.
 - The interface language follows the speech language. `en`, `cs` and `sk` are
