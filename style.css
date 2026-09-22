@@ -258,6 +258,7 @@ body {
 .footer {
 	display: flex;
 	flex-wrap: wrap;
+	justify-content: flex-end;
 	gap: 1.25rem;
 	margin: 0;
 	font-size: 0.9375rem;
