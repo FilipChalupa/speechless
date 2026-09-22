@@ -300,7 +300,8 @@ body {
 	flex: 2;
 }
 
-.composer-show {
+.composer-show,
+.composer-save {
 	flex: 1;
 	min-height: 3.25rem;
 	border: 1px solid var(--border);
@@ -314,8 +315,14 @@ body {
 	touch-action: manipulation;
 }
 
-.composer-show:active {
+.composer-show:active,
+.composer-save:active {
 	background: var(--surface-hover);
+}
+
+.composer-save {
+	border-color: var(--accent);
+	color: var(--accent);
 }
 
 .history-show,
@@ -342,58 +349,9 @@ body {
 	background: var(--surface-hover);
 }
 
-.history-edit {
-	display: flex;
-	flex: 1;
-	flex-direction: column;
-	gap: 0.5rem;
-	padding: 0.75rem;
-}
-
-.history-edit-input {
-	width: 100%;
-	padding: 0.625rem 0.75rem;
-	border: 1px solid var(--border);
-	border-radius: 0.625rem;
-	background: var(--background);
-	color: inherit;
-	font: inherit;
-	resize: vertical;
-}
-
-.history-edit-input:focus-visible {
-	outline: 2px solid var(--accent);
-	outline-offset: 1px;
-}
-
-.history-edit-actions {
-	display: flex;
-	gap: 0.5rem;
-}
-
-.history-edit-save,
-.history-edit-cancel {
-	flex: 1;
-	min-height: 2.75rem;
-	border: 1px solid var(--border);
-	border-radius: 0.625rem;
-	background: var(--background);
-	color: inherit;
-	font: inherit;
-	font-weight: 600;
-	cursor: pointer;
-	touch-action: manipulation;
-}
-
-.history-edit-save {
-	border-color: transparent;
-	background: var(--accent);
-	color: var(--accent-text);
-}
-
-.history-edit-save:active,
-.history-edit-cancel:active {
-	opacity: 0.8;
+.history-edit-button[aria-pressed="true"] {
+	background: var(--surface-hover);
+	color: var(--accent);
 }
 
 /* Must come with the display rule below: an author `display` beats the

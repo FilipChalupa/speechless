@@ -55,6 +55,9 @@
 				<div class="composer-actions">
 					<button class="composer-submit" id="submit" type="submit">Play</button>
 					<button class="composer-show" id="show" type="button">Show</button>
+					<!-- Only while a history entry is being edited; writes the field back
+					     into that entry without speaking. -->
+					<button class="composer-save" id="save" type="button" hidden>Save</button>
 				</div>
 				<p class="status" id="status" role="status" aria-live="polite"></p>
 			</form>

@@ -30,7 +30,6 @@ const TRANSLATIONS = {
 		unpin: 'Unpin',
 		edit: 'Edit',
 		save: 'Save',
-		cancel: 'Cancel',
 		settings: 'Settings',
 		speechLanguage: 'Speech language',
 		deviceVoice: 'Only the device voice',
@@ -56,7 +55,6 @@ const TRANSLATIONS = {
 		unpin: 'Odepnout',
 		edit: 'Upravit',
 		save: 'Uložit',
-		cancel: 'Zrušit',
 		settings: 'Nastavení',
 		speechLanguage: 'Jazyk řeči',
 		deviceVoice: 'Jen hlas zařízení',
@@ -82,7 +80,6 @@ const TRANSLATIONS = {
 		unpin: 'Odopnúť',
 		edit: 'Upraviť',
 		save: 'Uložiť',
-		cancel: 'Zrušiť',
 		settings: 'Nastavenia',
 		speechLanguage: 'Jazyk reči',
 		deviceVoice: 'Len hlas zariadenia',
@@ -245,6 +242,7 @@ function initApp() {
 	const settingsLabel = document.querySelector('#settings-label')
 	const privacyLink = document.querySelector('#privacy-link')
 	const showButton = document.querySelector('#show')
+	const saveButton = document.querySelector('#save')
 	const overlay = document.querySelector('#overlay')
 	const overlayText = document.querySelector('#overlay-text')
 	const overlaySpeakButton = document.querySelector('#overlay-speak')
@@ -273,7 +271,9 @@ function initApp() {
 	let wakeLock = null
 	let playing = false
 	let abortCurrentChunk = null
-	// The text of the entry whose row is an editor right now, or null.
+	// The history entry whose text is in the composer for editing, or null.
+	// Save writes the field back into it; Play and Show treat the field as
+	// something new, so a pinned phrase can serve as a template.
 	let editingText = null
 	let history = loadHistory()
 
@@ -293,6 +293,7 @@ function initApp() {
 		// The page holds every translation; the hash picks the matching one.
 		privacyLink.href = `privacy.html#${uiLanguage()}`
 		showButton.textContent = strings.show
+		saveButton.textContent = strings.save
 		overlayCloseButton.textContent = strings.close
 		renderActionButtons()
 		renderStatus()
@@ -360,12 +361,7 @@ function initApp() {
 	}
 
 	function renderHistory() {
-		// A re-render while editing (a pin toggled, a phrase played) must not
-		// throw away what has been typed into the editor so far.
-		const draft = historyList.querySelector('.history-edit-input')?.value ?? null
-		historyList.replaceChildren(
-			...history.map((entry) => (entry.text === editingText ? renderEditor(entry, draft) : renderEntry(entry))),
-		)
+		historyList.replaceChildren(...history.map(renderEntry))
 
 		const pinnedCount = history.filter((item) => item.pinned).length
 		historyEmpty.hidden = history.length > 0
@@ -421,97 +417,62 @@ function initApp() {
 		edit.className = 'history-edit-button'
 		edit.innerHTML = PENCIL_ICON
 		edit.setAttribute('aria-label', `${texts().edit}: ${text}`)
+		// Lit while this entry's text is in the composer.
+		edit.setAttribute('aria-pressed', String(text === editingText))
 		edit.addEventListener('click', () => {
-			startEditing(text)
+			toggleEditing(text)
 		})
 
 		item.append(play, show, edit, pin)
 		return item
 	}
 
-	// The row itself turns into the editor, so the phrase stays where it is,
-	// pinned or not, and the composer is free for the next thing to say.
-	function renderEditor({ text }, draft) {
-		const item = document.createElement('li')
-		item.className = 'history-item history-item-editing'
-
-		const form = document.createElement('form')
-		form.className = 'history-edit'
-
-		const field = document.createElement('textarea')
-		field.className = 'history-edit-input'
-		field.rows = 2
-		field.value = draft ?? text
-		field.autocomplete = 'off'
-		field.autocapitalize = 'sentences'
-		field.enterKeyHint = 'done'
-		field.setAttribute('aria-label', texts().edit)
-
-		const save = document.createElement('button')
-		save.type = 'submit'
-		save.className = 'history-edit-save'
-		save.textContent = texts().save
-
-		const cancel = document.createElement('button')
-		cancel.type = 'button'
-		cancel.className = 'history-edit-cancel'
-		cancel.textContent = texts().cancel
-		cancel.addEventListener('click', stopEditing)
-
-		form.addEventListener('submit', (event) => {
-			event.preventDefault()
-			finishEditing(text, field.value)
-		})
-		field.addEventListener('keydown', (event) => {
-			if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
-				event.preventDefault()
-				finishEditing(text, field.value)
-			} else if (event.key === 'Escape') {
-				event.preventDefault()
-				stopEditing()
-			}
-		})
-
-		const actions = document.createElement('div')
-		actions.className = 'history-edit-actions'
-		actions.append(save, cancel)
-		form.append(field, actions)
-		item.append(form)
-		return item
-	}
-
-	function startEditing(text) {
+	// The pencil puts the entry into the composer, where the ordinary keyboard
+	// and buttons already are; a second tap on the same pencil takes it out.
+	function toggleEditing(text) {
+		if (text === editingText) {
+			input.value = ''
+			stopEditing()
+			input.focus()
+			return
+		}
 		editingText = text
+		input.value = text
 		renderHistory()
-		const field = historyList.querySelector('.history-edit-input')
-		field.focus()
-		field.setSelectionRange(field.value.length, field.value.length)
+		renderActionButtons()
+		input.focus()
+		input.setSelectionRange(text.length, text.length)
 	}
 
 	function stopEditing() {
-		editingText = null
-		renderHistory()
-		input.focus()
-	}
-
-	// Empty text is a cancel, not a deletion: entries only leave through Clear.
-	function finishEditing(oldText, value) {
-		const text = value.trim()
-		if (!text || text === oldText) {
-			stopEditing()
+		if (editingText === null) {
 			return
 		}
-		const edited = history.find((item) => item.text === oldText)
-		const duplicate = history.find((item) => item.text === text)
-		// Two rows with one text would be a puzzle, so they merge, and a pin on
-		// either side survives.
-		history = sortPinnedFirst(
-			history
-				.filter((item) => item === edited || item.text !== text)
-				.map((item) => (item === edited ? { ...item, text, pinned: item.pinned || duplicate?.pinned === true } : item)),
-		)
-		saveHistory()
+		editingText = null
+		renderHistory()
+		renderActionButtons()
+	}
+
+	function saveEdit() {
+		const text = input.value.trim()
+		if (editingText === null || !text) {
+			return
+		}
+		if (text !== editingText) {
+			const edited = history.find((item) => item.text === editingText)
+			const duplicate = history.find((item) => item.text === text)
+			// Two rows with one text would be a puzzle, so they merge, and a pin
+			// on either side survives.
+			history = sortPinnedFirst(
+				history
+					.filter((item) => item === edited || item.text !== text)
+					.map((item) => (item === edited ? { ...item, text, pinned: item.pinned || duplicate?.pinned === true } : item)),
+			)
+			saveHistory()
+		}
+		input.value = ''
 		stopEditing()
+		input.focus()
 	}
 
 	function addToHistory(text) {
@@ -547,6 +508,7 @@ function initApp() {
 		const strings = texts()
 		submitButton.textContent = playing && input.value.trim() === '' ? strings.stop : strings.play
 		overlaySpeakButton.textContent = playing ? strings.stop : strings.play
+		saveButton.hidden = editingText === null
 	}
 
 	function setPlaying(value) {
@@ -766,6 +728,8 @@ function initApp() {
 		input.value = ''
 		// Keeps the on-screen keyboard open on a phone.
 		input.focus()
+		// addToHistory re-renders the rows, so the pencil goes out with it.
+		editingText = null
 		addToHistory(text)
 		speak(text)
 	}
@@ -833,9 +797,13 @@ function initApp() {
 			return
 		}
 		input.value = ''
+		editingText = null
 		addToHistory(text)
+		renderActionButtons()
 		openOverlay(text, language)
 	})
+
+	saveButton.addEventListener('click', saveEdit)
 
 	overlaySpeakButton.addEventListener('click', () => {
 		if (playing) {
@@ -845,7 +813,12 @@ function initApp() {
 		speak(shownText, shownLanguage ?? language)
 	})
 
-	input.addEventListener('input', renderActionButtons)
+	input.addEventListener('input', () => {
+		if (editingText !== null && input.value.trim() === '') {
+			stopEditing()
+		}
+		renderActionButtons()
+	})
 
 	overlayCloseButton.addEventListener('click', closeOverlay)
 
