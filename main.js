@@ -716,8 +716,26 @@ function initApp() {
 		}
 	}
 
-	function submit() {
+	// Play and Show both start by taking what is in the field: it goes into
+	// the history as its own entry, whether or not it began as an edit of
+	// another one, and the field is left empty for the next thing to say.
+	function takeText() {
 		const text = input.value.trim()
+		if (!text) {
+			return ''
+		}
+		input.value = ''
+		// Keeps the on-screen keyboard open on a phone.
+		input.focus()
+		editingText = null
+		// Renders the rows, so the pencil goes out with it.
+		addToHistory(text)
+		renderActionButtons()
+		return text
+	}
+
+	function submit() {
+		const text = takeText()
 		if (!text) {
 			// Nothing to say: the same button is the way to stop what is playing.
 			if (playing) {
@@ -725,12 +743,6 @@ function initApp() {
 			}
 			return
 		}
-		input.value = ''
-		// Keeps the on-screen keyboard open on a phone.
-		input.focus()
-		// addToHistory re-renders the rows, so the pencil goes out with it.
-		editingText = null
-		addToHistory(text)
 		speak(text)
 	}
 
@@ -792,15 +804,10 @@ function initApp() {
 	}
 
 	showButton.addEventListener('click', () => {
-		const text = input.value.trim()
-		if (!text) {
-			return
+		const text = takeText()
+		if (text) {
+			openOverlay(text, language)
 		}
-		input.value = ''
-		editingText = null
-		addToHistory(text)
-		renderActionButtons()
-		openOverlay(text, language)
 	})
 
 	saveButton.addEventListener('click', saveEdit)
@@ -815,9 +822,11 @@ function initApp() {
 
 	input.addEventListener('input', () => {
 		if (editingText !== null && input.value.trim() === '') {
+			// Renders the buttons itself.
 			stopEditing()
+		} else {
+			renderActionButtons()
 		}
-		renderActionButtons()
 	})
 
 	overlayCloseButton.addEventListener('click', closeOverlay)
