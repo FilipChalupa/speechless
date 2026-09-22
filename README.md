@@ -3,7 +3,7 @@
 Type a message, press Enter (or the Play button) and the device says it out
 loud. Built for a phone, for people whose voice is temporarily gone.
 
-Live at <https://filipchalupa.cz/speechless/>.
+Live at <https://speechless.filipchalupa.cz/>.
 
 ## How it works
 
@@ -65,8 +65,8 @@ Live at <https://filipchalupa.cz/speechless/>.
 Every text played the normal way goes to Google as a query parameter, along
 with the user's IP address, and the people this is for may well be typing in
 a hospital. `privacy.html` says so in plain words, in English, Czech and
-Slovak; `main.js` links to it from the settings page with the interface
-language in the hash, and `style.css` shows only that section where `:has()` is
+Slovak; `main.js` links to it from the app page with the interface language
+in the hash, and `style.css` shows only that section where `:has()` is
 supported. Keep the page true to the code: a new request to anyone, or a new
 place data is kept, belongs on that page in the same commit.
 

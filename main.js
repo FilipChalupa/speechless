@@ -180,7 +180,6 @@ function initSettings() {
 	const deviceVoiceCheckbox = document.querySelector('#device-voice')
 	const deviceVoiceLabel = document.querySelector('#device-voice-label')
 	const deviceVoiceNote = document.querySelector('#device-voice-note')
-	const privacyLink = document.querySelector('#privacy-link')
 
 	languageSelect.replaceChildren(
 		...LANGUAGES.map(({ code, label }) => {
@@ -202,9 +201,6 @@ function initSettings() {
 		languageLabel.textContent = strings.speechLanguage
 		deviceVoiceLabel.textContent = strings.deviceVoice
 		deviceVoiceNote.textContent = strings.deviceVoiceNote
-		privacyLink.textContent = strings.privacy
-		// The page holds every translation; the hash picks the matching one.
-		privacyLink.href = `privacy.html#${uiLanguage()}`
 	}
 
 	languageSelect.addEventListener('change', () => {
@@ -238,6 +234,7 @@ function initApp() {
 	const submitButton = document.querySelector('#submit')
 	const historyHeading = document.querySelector('#history-heading')
 	const settingsLink = document.querySelector('#settings-link')
+	const privacyLink = document.querySelector('#privacy-link')
 	const showButton = document.querySelector('#show')
 	const overlay = document.querySelector('#overlay')
 	const overlayText = document.querySelector('#overlay-text')
@@ -277,6 +274,9 @@ function initApp() {
 		historyHeading.textContent = strings.history
 		historyEmpty.textContent = strings.empty
 		settingsLink.textContent = strings.settings
+		privacyLink.textContent = strings.privacy
+		// The page holds every translation; the hash picks the matching one.
+		privacyLink.href = `privacy.html#${uiLanguage()}`
 		showButton.textContent = strings.show
 		overlayCloseButton.textContent = strings.close
 		renderActionButtons()
