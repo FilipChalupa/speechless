@@ -57,8 +57,9 @@ Live at <https://speechless.filipchalupa.cz/>.
 - While something is being said, three bars bob before the status text.
   They follow the playing state, not the sound: Google TTS sends no CORS
   header, so Web Audio would only ever get silence from it, and
-  `speechSynthesis` exposes no signal at all. With reduced motion on, the
-  bars stand still at unequal heights.
+  `speechSynthesis` exposes no signal at all. With reduced motion on they
+  still move, only slower and less: they are the one sign that sound is
+  coming out, the way a spinner is for loading.
 - Offline, or when Google TTS fails, the app speaks with the device voice
   (`speechSynthesis`) and says so in the status line. Offline it skips the
   request entirely — on iOS the user gesture that permits speaking would

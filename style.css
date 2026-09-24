@@ -144,22 +144,31 @@ body {
 	}
 }
 
-/* Still readable as "sound" when motion is off: three bars of unequal height. */
+/* Reduced motion keeps the bars moving: they are the only sign that sound is
+   coming out, like a spinner is for loading. Only slower and gentler. */
 @media (prefers-reduced-motion: reduce) {
 	.speaking i {
-		animation: none;
-	}
-
-	.speaking i:nth-child(1) {
-		transform: scaleY(0.5);
+		animation-name: speaking-bob-gentle;
+		animation-duration: 1.6s;
 	}
 
 	.speaking i:nth-child(2) {
-		transform: scaleY(1);
+		animation-delay: -0.5s;
 	}
 
 	.speaking i:nth-child(3) {
-		transform: scaleY(0.7);
+		animation-delay: -1s;
+	}
+}
+
+@keyframes speaking-bob-gentle {
+	0%,
+	100% {
+		transform: scaleY(0.55);
+	}
+
+	50% {
+		transform: scaleY(0.9);
 	}
 }
 
