@@ -255,6 +255,11 @@ function initApp() {
 		'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
 		'<path fill="currentColor" d="M12 5C7 5 3 9.5 3 12s4 7 9 7 9-4.5 9-7-4-7-9-7Zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/>' +
 		'</svg>'
+	// Three bars that bob while something is being said. Nothing here hears the
+	// audio: Google TTS sends no CORS header, so Web Audio would only get
+	// silence, and speechSynthesis exposes no signal at all. The bars follow
+	// the playing state, which is what they are meant to say anyway.
+	const SPEAKING_BARS = '<span class="speaking" aria-hidden="true"><i></i><i></i><i></i></span>'
 	const PENCIL_ICON =
 		'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
 		'<path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/>' +
@@ -535,7 +540,9 @@ function initApp() {
 	}
 
 	function renderStatus() {
-		statusElement.textContent = statusKey ? texts()[statusKey] : ''
+		const speaking = statusKey === 'playing' || statusKey === 'playingDevice'
+		statusElement.innerHTML = speaking ? SPEAKING_BARS : ''
+		statusElement.append(statusKey ? texts()[statusKey] : '')
 		if (statusTone) {
 			statusElement.dataset.tone = statusTone
 		} else {

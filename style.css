@@ -105,6 +105,64 @@ body {
 	color: #d2453c;
 }
 
+/* The bobbing bars before "Playing…". Sized in em so they follow the text. */
+.speaking {
+	display: inline-flex;
+	align-items: flex-end;
+	gap: 0.15em;
+	height: 1em;
+	margin-inline-end: 0.5em;
+	vertical-align: -0.15em;
+}
+
+.speaking i {
+	width: 0.2em;
+	height: 100%;
+	border-radius: 0.1em;
+	background: currentColor;
+	transform: scaleY(0.4);
+	transform-origin: bottom;
+	animation: speaking-bob 0.8s ease-in-out infinite;
+}
+
+.speaking i:nth-child(2) {
+	animation-delay: -0.25s;
+}
+
+.speaking i:nth-child(3) {
+	animation-delay: -0.5s;
+}
+
+@keyframes speaking-bob {
+	0%,
+	100% {
+		transform: scaleY(0.3);
+	}
+
+	50% {
+		transform: scaleY(1);
+	}
+}
+
+/* Still readable as "sound" when motion is off: three bars of unequal height. */
+@media (prefers-reduced-motion: reduce) {
+	.speaking i {
+		animation: none;
+	}
+
+	.speaking i:nth-child(1) {
+		transform: scaleY(0.5);
+	}
+
+	.speaking i:nth-child(2) {
+		transform: scaleY(1);
+	}
+
+	.speaking i:nth-child(3) {
+		transform: scaleY(0.7);
+	}
+}
+
 @media (prefers-color-scheme: dark) {
 	.status[data-tone="error"] {
 		color: #ff8279;

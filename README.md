@@ -54,6 +54,11 @@ Live at <https://speechless.filipchalupa.cz/>.
   from scratch in the first real situation. A language without wording of its
   own gets the English one stored as English. Only a missing `localStorage`
   key counts as a first run: a cleared history stays cleared.
+- While something is being said, three bars bob before the status text.
+  They follow the playing state, not the sound: Google TTS sends no CORS
+  header, so Web Audio would only ever get silence from it, and
+  `speechSynthesis` exposes no signal at all. With reduced motion on, the
+  bars stand still at unequal heights.
 - Offline, or when Google TTS fails, the app speaks with the device voice
   (`speechSynthesis`) and says so in the status line. Offline it skips the
   request entirely — on iOS the user gesture that permits speaking would
