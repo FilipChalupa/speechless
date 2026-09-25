@@ -19,9 +19,9 @@ const COPIED = [
 	'icon-512.png',
 	'apple-touch-icon.png',
 ]
-// Fetched by link-preview crawlers only, never by the app itself, so it stays
-// out of every phone's cache.
-const COPIED_UNCACHED = ['og-image.png']
+// Fetched by link-preview crawlers and the install dialog only, never by the
+// app itself, so they stay out of every phone's cache.
+const COPIED_UNCACHED = ['og-image.png', 'screenshots']
 
 const hashOf = (content) => createHash('sha256').update(content).digest('hex').slice(0, 8)
 
@@ -105,7 +105,7 @@ if (!sw.includes(mainName) || !sw.includes(styleName)) {
 await writeFile(join(dist, 'sw.js'), sw)
 
 for (const asset of [...COPIED, ...COPIED_UNCACHED]) {
-	await cp(join(root, asset), join(dist, asset))
+	await cp(join(root, asset), join(dist, asset), { recursive: true })
 }
 
 console.log(`built dist/ with ${styleName} and ${mainName}`)

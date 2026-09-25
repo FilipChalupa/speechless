@@ -35,5 +35,35 @@
 			"type": "image/svg+xml",
 			"purpose": "any"
 		}
+	],
+	"screenshots": [
+		{
+			"src": "screenshots/phone-home.png",
+			"sizes": "1170x2532",
+			"type": "image/png",
+			"form_factor": "narrow",
+			"label": "Type a message and play it. Earlier phrases stay in the history, pinned ones on top."
+		},
+		{
+			"src": "screenshots/phone-speaking.png",
+			"sizes": "1170x2532",
+			"type": "image/png",
+			"form_factor": "narrow",
+			"label": "The phone is speaking and the button has turned into Stop."
+		},
+		{
+			"src": "screenshots/phone-show.png",
+			"sizes": "1170x2532",
+			"type": "image/png",
+			"form_factor": "narrow",
+			"label": "Show puts the message across the whole screen."
+		},
+		{
+			"src": "screenshots/desktop-home.png",
+			"sizes": "1280x800",
+			"type": "image/png",
+			"form_factor": "wide",
+			"label": "The app in a desktop browser."
+		}
 	]
 }

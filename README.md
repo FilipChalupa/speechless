@@ -5,6 +5,12 @@ loud. Built for a phone, for people whose voice is temporarily gone.
 
 Live at <https://speechless.filipchalupa.cz/>.
 
+<p>
+  <img src="screenshots/phone-home.png" width="230" alt="The app on a phone: a text field, Play and Show buttons, and a history of phrases with pinned ones on top." />
+  <img src="screenshots/phone-speaking.png" width="230" alt="The phone speaking: three bobbing bars next to Playing, and the button turned into Stop." />
+  <img src="screenshots/phone-show.png" width="230" alt="Show: the message across the whole screen in large type, with Play and Close below." />
+</p>
+
 ## How it works
 
 - `index.html`, `style.css` and `main.js` are the whole app; `settings.html`
@@ -103,7 +109,7 @@ npx serve .
 
 ## Images
 
-`icon.svg` is the source; every PNG is generated from it by `make-images.mjs`:
+`icon.svg` is the source; every icon PNG is generated from it by `make-images.mjs`:
 the home-screen icons (iOS ignores both SVG icons and the manifest icons when
 adding to the home screen, hence `apple-touch-icon.png`) and `og-image.png`
 for link previews. The install flags matter: a plain `npm i` in a directory
@@ -127,6 +133,20 @@ colour balance should match `icon.svg`: roughly 82% background blue and 17%
 white for the bubble. The og-image is set in whatever sans-serif the machine
 has, so it renders a little differently elsewhere.
 
+`screenshots/` comes from `make-screenshots.mjs` the same way. It opens the
+source files over `file://`, seeds English and a few phrases into storage so
+the pictures do not depend on the machine's language, and leaves the Google
+TTS request hanging to hold the "Playing…" state. The pictures serve the
+README above and the install prompt: `manifest.webmanifest` lists them under
+`screenshots`, by pixel size, which Chrome only shows when every side is
+between 320 and 3840 px, the long side is at most 2.3× the short one, and
+each form factor keeps one aspect ratio. Change the sizes in both places
+together.
+
+```sh
+node make-screenshots.mjs
+```
+
 ## Deployment
 
 A push to the `deploy` branch runs the workflow, which calls `node build.mjs`
@@ -146,8 +166,9 @@ short-lived, so a deploy immediately points at the new file names.
 
 The service worker precaches those hashed files, `settings.html` and
 `privacy.html`, which is why those pages are part of the build id too: without
-that a reworded page would never reach an installed app that stays offline. `og-image.png` is copied
-but not precached; only crawlers fetch it. Runtime caching alone is not
+that a reworded page would never reach an installed app that stays offline. `og-image.png` and
+`screenshots/` are copied but not precached; only crawlers and the install
+dialog fetch them. Runtime caching alone is not
 enough — the script is fetched before the worker is even registered, so offline
 it would be missing on the first try, and a cache miss answered with
 `index.html` gives the browser HTML where it expects JavaScript.
