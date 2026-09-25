@@ -105,7 +105,7 @@ body {
 	color: #d2453c;
 }
 
-/* The bobbing bars before "Playing…". Sized in em so they follow the text. */
+/* The bobbing bars before "Speaking…". Sized in em so they follow the text. */
 .speaking {
 	display: inline-flex;
 	align-items: flex-end;

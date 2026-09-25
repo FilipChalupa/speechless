@@ -7,7 +7,7 @@ Live at <https://speechless.filipchalupa.cz/>.
 
 <p>
   <img src="assets/screenshots/phone-home.png" width="230" alt="The app on a phone: a text field, Play and Show buttons, and a history of phrases with pinned ones on top." />
-  <img src="assets/screenshots/phone-speaking.png" width="230" alt="The phone speaking: three bobbing bars next to Playing, and the button turned into Stop." />
+  <img src="assets/screenshots/phone-speaking.png" width="230" alt="The phone speaking: three bobbing bars next to Speaking, and the button turned into Stop." />
   <img src="assets/screenshots/phone-show.png" width="230" alt="Show: the message across the whole screen in large type, with Play and Close below." />
 </p>
 
@@ -138,7 +138,7 @@ has, so it renders a little differently elsewhere.
 `assets/screenshots/` comes from `scripts/make-screenshots.mjs` the same way. It opens the
 source files over `file://`, seeds English and a few phrases into storage so
 the pictures do not depend on the machine's language, and leaves the Google
-TTS request hanging to hold the "Playing…" state. The pictures serve the
+TTS request hanging to hold the "Speaking…" state. The pictures serve the
 README above and the install prompt: `manifest.webmanifest` lists them under
 `screenshots`, by pixel size, which Chrome only shows when every side is
 between 320 and 3840 px, the long side is at most 2.3× the short one, and

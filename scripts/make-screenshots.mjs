@@ -12,7 +12,7 @@ import { chromium } from 'playwright-core'
 // or server is needed. Storage is seeded with English and a couple of
 // phrases, so the pictures do not depend on this machine's language. Google
 // TTS is never called: the request is left hanging, which is exactly what
-// keeps the "Playing…" state on screen.
+// keeps the "Speaking…" state on screen.
 //
 // Chrome shows these in its install dialog only within limits: every side
 // between 320 and 3840 px, the long side at most 2.3× the short one, and one
