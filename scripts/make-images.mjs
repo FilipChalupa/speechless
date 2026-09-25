@@ -3,10 +3,11 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright-core'
 
-// Regenerates every PNG from icon.svg: the home-screen icons and og-image.png,
+// Regenerates every PNG under assets/ from assets/icons/icon.svg: the
+// home-screen icons and og-image.png,
 // the preview that Slack, Facebook, iMessage and the like show next to a
 // shared link. Needs a Chrome and playwright-core:
-//   npm i --no-save --no-package-lock playwright-core && node make-images.mjs
+//   npm i --no-save --no-package-lock playwright-core && node scripts/make-images.mjs
 //
 // Every target is a page with the SVG inlined, screenshotted at its own size.
 // Two traps, both of which silently produce a plausible-looking file:
@@ -20,8 +21,8 @@ import { chromium } from 'playwright-core'
 // The og-image type comes from whatever sans-serif the machine has, so its
 // pixels differ slightly between machines; check the result, not the size.
 
-const root = dirname(fileURLToPath(import.meta.url))
-const icon = await readFile(join(root, 'icon.svg'), 'utf8')
+const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const icon = await readFile(join(root, 'assets/icons/icon.svg'), 'utf8')
 
 const iconPage = `<style>svg{display:block;width:100vw;height:100vh}</style>${icon}`
 
@@ -53,10 +54,10 @@ ${icon}
 </div>`
 
 const TARGETS = [
-	{ file: 'icon-192.png', width: 192, height: 192, html: iconPage },
-	{ file: 'icon-512.png', width: 512, height: 512, html: iconPage },
-	{ file: 'apple-touch-icon.png', width: 180, height: 180, html: iconPage },
-	{ file: 'og-image.png', width: 1200, height: 630, html: ogPage },
+	{ file: 'assets/icons/icon-192.png', width: 192, height: 192, html: iconPage },
+	{ file: 'assets/icons/icon-512.png', width: 512, height: 512, html: iconPage },
+	{ file: 'assets/icons/apple-touch-icon.png', width: 180, height: 180, html: iconPage },
+	{ file: 'assets/og-image.png', width: 1200, height: 630, html: ogPage },
 ]
 
 const browser = await chromium.launch({ channel: 'chrome' })

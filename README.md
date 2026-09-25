@@ -6,16 +6,18 @@ loud. Built for a phone, for people whose voice is temporarily gone.
 Live at <https://speechless.filipchalupa.cz/>.
 
 <p>
-  <img src="screenshots/phone-home.png" width="230" alt="The app on a phone: a text field, Play and Show buttons, and a history of phrases with pinned ones on top." />
-  <img src="screenshots/phone-speaking.png" width="230" alt="The phone speaking: three bobbing bars next to Playing, and the button turned into Stop." />
-  <img src="screenshots/phone-show.png" width="230" alt="Show: the message across the whole screen in large type, with Play and Close below." />
+  <img src="assets/screenshots/phone-home.png" width="230" alt="The app on a phone: a text field, Play and Show buttons, and a history of phrases with pinned ones on top." />
+  <img src="assets/screenshots/phone-speaking.png" width="230" alt="The phone speaking: three bobbing bars next to Playing, and the button turned into Stop." />
+  <img src="assets/screenshots/phone-show.png" width="230" alt="Show: the message across the whole screen in large type, with Play and Close below." />
 </p>
 
 ## How it works
 
 - `index.html`, `style.css` and `main.js` are the whole app; `settings.html`
   is the settings page and `privacy.html` the privacy notice. No framework,
-  no bundler; `build.mjs` only renames assets (see Deployment).
+  no bundler; `scripts/build.mjs` only renames assets (see Deployment).
+  `assets/` holds the icons, the link-preview picture and the screenshots,
+  `scripts/` the build and the generators that make those pictures.
 - `main.js` runs on the app page and on the settings page alike and picks
   its part by whether the composer form exists. The settings page saves to
   localStorage; the app reads it back when it loads again, so nothing has to
@@ -73,7 +75,7 @@ Live at <https://speechless.filipchalupa.cz/>.
   voice for the language it says so rather than reading the text in a foreign
   accent.
 - It installs to the home screen (`manifest.webmanifest`,
-  `apple-touch-icon.png`, service worker) and opens without a connection.
+  `assets/icons/apple-touch-icon.png`, service worker) and opens without a connection.
   On iPhone: Safari → Share → Add to Home Screen.
 - The settings page has an *Only the device voice* switch
   (`speechless:device-voice` in localStorage). With it on, Play never contacts Google and goes straight
@@ -96,8 +98,8 @@ place data is kept, belongs on that page in the same commit.
 
 All three pages carry Open Graph and Twitter card tags, with
 an absolute `og:image` URL because crawlers do not resolve relative ones.
-The picture is `og-image.png`, 1200×630, generated together with the icons
-(see Images).
+The picture is `assets/og-image.png`, 1200×630, generated together with the
+icons (see Images).
 
 ## Development
 
@@ -109,15 +111,15 @@ npx serve .
 
 ## Images
 
-`icon.svg` is the source; every icon PNG is generated from it by `make-images.mjs`:
-the home-screen icons (iOS ignores both SVG icons and the manifest icons when
-adding to the home screen, hence `apple-touch-icon.png`) and `og-image.png`
-for link previews. The install flags matter: a plain `npm i` in a directory
+`assets/icons/icon.svg` is the source; every PNG under `assets/` is generated
+from it by `scripts/make-images.mjs`: the home-screen icons (iOS ignores both
+SVG icons and the manifest icons when adding to the home screen, hence
+`apple-touch-icon.png`) and `og-image.png` for link previews. The install flags matter: a plain `npm i` in a directory
 without a `package.json` writes one, plus a lock file.
 
 ```sh
 npm i --no-save --no-package-lock playwright-core
-node make-images.mjs
+node scripts/make-images.mjs
 ```
 
 The script inlines the SVG into a page and sizes it with CSS, because the
@@ -133,7 +135,7 @@ colour balance should match `icon.svg`: roughly 82% background blue and 17%
 white for the bubble. The og-image is set in whatever sans-serif the machine
 has, so it renders a little differently elsewhere.
 
-`screenshots/` comes from `make-screenshots.mjs` the same way. It opens the
+`assets/screenshots/` comes from `scripts/make-screenshots.mjs` the same way. It opens the
 source files over `file://`, seeds English and a few phrases into storage so
 the pictures do not depend on the machine's language, and leaves the Google
 TTS request hanging to hold the "Playing…" state. The pictures serve the
@@ -144,12 +146,12 @@ each form factor keeps one aspect ratio. Change the sizes in both places
 together.
 
 ```sh
-node make-screenshots.mjs
+node scripts/make-screenshots.mjs
 ```
 
 ## Deployment
 
-A push to the `deploy` branch runs the workflow, which calls `node build.mjs`
+A push to the `deploy` branch runs the workflow, which calls `node scripts/build.mjs`
 and deploys the resulting `dist/` to GitHub Pages. Work lands on `main` without
 going live; to release, move `deploy` to the commit that should be public:
 
@@ -166,8 +168,8 @@ short-lived, so a deploy immediately points at the new file names.
 
 The service worker precaches those hashed files, `settings.html` and
 `privacy.html`, which is why those pages are part of the build id too: without
-that a reworded page would never reach an installed app that stays offline. `og-image.png` and
-`screenshots/` are copied but not precached; only crawlers and the install
+that a reworded page would never reach an installed app that stays offline. `assets/og-image.png` and
+`assets/screenshots/` are copied but not precached; only crawlers and the install
 dialog fetch them. Runtime caching alone is not
 enough — the script is fetched before the worker is even registered, so offline
 it would be missing on the first try, and a cache miss answered with

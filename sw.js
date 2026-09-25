@@ -1,6 +1,6 @@
-// build.mjs stamps the build id, so every deploy starts with a clean cache.
+// scripts/build.mjs stamps the build id, so every deploy starts with a clean cache.
 const CACHE_NAME = 'speechless-shell-__BUILD_ID__'
-// build.mjs stamps the hashed file names here. Runtime caching alone is not
+// scripts/build.mjs stamps the hashed file names here. Runtime caching alone is not
 // enough: the script is fetched before this worker is even registered, so
 // offline it would be missing on the very first try.
 const BUILD_ASSETS = []

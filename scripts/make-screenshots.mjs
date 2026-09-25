@@ -3,10 +3,10 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium } from 'playwright-core'
 
-// Takes the screenshots in screenshots/ for the README and for the install
+// Takes the screenshots in assets/screenshots/ for the README and for the install
 // prompt (the "screenshots" list in manifest.webmanifest). Same route as
 // make-images.mjs:
-//   npm i --no-save --no-package-lock playwright-core && node make-screenshots.mjs
+//   npm i --no-save --no-package-lock playwright-core && node scripts/make-screenshots.mjs
 //
 // The app is opened straight from the source files over file://, so no build
 // or server is needed. Storage is seeded with English and a couple of
@@ -19,8 +19,8 @@ import { chromium } from 'playwright-core'
 // aspect ratio per form factor. The sizes below satisfy that, and the
 // manifest lists them by pixel size, so change both together.
 
-const root = dirname(fileURLToPath(import.meta.url))
-const out = join(root, 'screenshots')
+const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const out = join(root, 'assets/screenshots')
 await mkdir(out, { recursive: true })
 
 const app = pathToFileURL(join(root, 'index.html')).href
@@ -59,7 +59,7 @@ async function shoot(device, file, act = async () => {}) {
 	await act(page)
 	await page.screenshot({ path: join(out, file) })
 	const { width, height } = device.viewport
-	console.log(`wrote screenshots/${file} at ${width * device.deviceScaleFactor}×${height * device.deviceScaleFactor}`)
+	console.log(`wrote assets/screenshots/${file} at ${width * device.deviceScaleFactor}×${height * device.deviceScaleFactor}`)
 	await context.close()
 }
 
