@@ -76,7 +76,10 @@ Live at <https://speechless.filipchalupa.cz/>.
   accent.
 - It installs to the home screen (`manifest.webmanifest`,
   `assets/icons/apple-touch-icon.png`, service worker) and opens without a connection.
-  On iPhone: Safari → Share → Add to Home Screen.
+  On iPhone: Safari → Share → Add to Home Screen. The manifest's `id` keeps
+  the installed app the same app if `start_url` ever changes, and
+  `launch_handler` brings the open window forward instead of opening a
+  second one.
 - The settings page has an *Only the device voice* switch
   (`speechless:device-voice` in localStorage). With it on, Play never contacts Google and goes straight
   to `speechSynthesis`, the same path as offline. It exists for privacy, not

@@ -2,11 +2,16 @@
 	"name": "Speechless",
 	"short_name": "Speechless",
 	"description": "Type a message and let the phone say it out loud.",
+	"id": "./",
 	"lang": "en",
 	"dir": "ltr",
 	"start_url": "./",
 	"scope": "./",
 	"display": "standalone",
+	"launch_handler": {
+		"client_mode": "focus-existing"
+	},
+	"categories": ["accessibility", "medical", "utilities"],
 	"orientation": "portrait",
 	"background_color": "#f4f5f7",
 	"theme_color": "#f4f5f7",
